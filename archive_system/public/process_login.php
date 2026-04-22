@@ -1,17 +1,26 @@
 <?php
 session_start();
-include("../config/db.php");
+require "../config/db.php";
 
-$email = $_POST['email'];
-$password = $_POST['password'];
+/*
+    INPUT VALIDATION
+*/
+$email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+$password = $_POST['password'] ?? '';
 
-// Store email for repopulating form
-$_SESSION['old_email'] = $email;
+if (!$email || empty($password)) {
+    $_SESSION['error'] = "Invalid input";
+    header("Location: login.php");
+    exit();
+}
 
-// Check if user exists
-$stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+/*
+    FETCH USER
+*/
+$stmt = $conn->prepare("SELECT id, password, institution_id FROM users WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
+
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
@@ -22,21 +31,31 @@ if ($result->num_rows === 0) {
 
 $user = $result->fetch_assoc();
 
-// Verify password
+/*
+    PASSWORD VERIFY
+*/
 if (!password_verify($password, $user['password'])) {
     $_SESSION['error'] = "Invalid email or password";
     header("Location: login.php");
     exit();
 }
 
-// SUCCESS → login user
-$_SESSION['user_id'] = $user['id'];
+/*
+    🔐 SESSION SECURITY 
+*/
+session_regenerate_id(true);
 
-// Clean up
+/*
+    LOGIN SUCCESS
+*/
+$_SESSION['user_id'] = $user['id'];
+$_SESSION['institution_id'] = $user['institution_id'];
+
+/*
+    CLEANUP
+*/
 unset($_SESSION['error']);
 unset($_SESSION['old_email']);
 
-// Redirect to dashboard
 header("Location: dashboard.php");
 exit();
-?>

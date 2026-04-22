@@ -12,22 +12,32 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <title>Dashboard</title>
 
-    <!-- Bootstrap CSS (styling only) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
-<body>
+<body class="bg-light">
 
 <div class="container mt-4">
 
-    <h3>Welcome to your Dashboard</h3>
-    <a href="library.php" class="btn btn-info ms-2">
-    Browse Library
-</a>
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">📊 Dashboard</h3>
 
-    <a href="logout.php" class="btn btn-danger mb-3">Logout</a>
+        <div>
+            <a href="library.php" class="btn btn-outline-primary me-2">
+                🌐 Library
+            </a>
+
+            <a href="files.php" class="btn btn-outline-dark me-2">
+                📂 My Files
+            </a>
+
+            <a href="logout.php" class="btn btn-danger">
+                Logout
+            </a>
+        </div>
+    </div>
 
     <!-- SUCCESS MESSAGE -->
     <?php if (isset($_SESSION['upload_success'])): ?>
@@ -43,19 +53,22 @@ if (!isset($_SESSION['user_id'])) {
     <?php if (isset($_SESSION['upload_error'])): ?>
         <div class="alert alert-danger">
             <?php 
-                echo $_SESSION['upload_error'];
+                echo $_SESSION['upload_error']; 
                 unset($_SESSION['upload_error']);
             ?>
         </div>
     <?php endif; ?>
 
-    <!-- UPLOAD BUTTON -->
-    <button class="btn btn-primary" onclick="openModal()">
-        + Upload File
-    </button>
-    <a href="files.php" class="btn btn-dark ms-2">
-    My Files
-</a>
+    <!-- MAIN CARD -->
+    <div class="card shadow-sm p-4 " style="width: 250px;">
+
+        <h5 class="mb-3">Quick Actions</h5>
+
+        <button class="btn btn-primary" onclick="openModal()">
+            + Upload File
+        </button>
+
+    </div>
 
 </div>
 
@@ -65,40 +78,47 @@ if (!isset($_SESSION['user_id'])) {
 
 <div id="uploadModal" class="custom-modal" style="display:none;">
 
-    <div class="custom-modal-content">
+    <div class="custom-modal-content p-4 rounded shadow">
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5>Upload Document</h5>
-            <button class="btn btn-sm btn-danger" onclick="closeModal()">X</button>
+            <h5 class="mb-0">📤 Upload File</h5>
+            <button class="btn btn-sm btn-outline-danger" onclick="closeModal()">✕</button>
         </div>
 
         <form action="upload_handler.php" method="POST" enctype="multipart/form-data" id="uploadForm">
 
+            <!-- TITLE -->
             <div class="mb-3">
-                <label>Title</label>
-                <input type="text" name="title" class="form-control" required>
+                <label class="form-label">Title</label>
+                <input type="text" name="title" class="form-control" placeholder="Enter file title..." required>
             </div>
 
+            <!-- DESCRIPTION -->
             <div class="mb-3">
-                <label>Description</label>
-                <textarea name="description" class="form-control"></textarea>
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="3" placeholder="Brief description..."></textarea>
             </div>
 
+            <!-- FILE -->
             <div class="mb-3">
-                <label>File</label>
+                <label class="form-label">Choose File</label>
                 <input type="file" name="file" class="form-control" required>
+                <small class="text-muted">Allowed: PDF, DOCX, JPG, PNG, TXT (Max 5MB)</small>
             </div>
-            <div class="mb-3">
-    <label>Visibility</label>
-    <select name="visibility" class="form-control">
-        <option value="private">Private (Only me)</option>
-        <option value="institution">Institution (Shared)</option>
-        <option value="public">Public (Anyone)</option>
-    </select>
-</div>
 
+            <!-- VISIBILITY -->
+            <div class="mb-4">
+                <label class="form-label">Visibility</label>
+                <select name="visibility" class="form-control">
+                    <option value="private">🔒 Private (Only me)</option>
+                    <option value="institution">🏫 Institution</option>
+                    <option value="public">🌍 Public</option>
+                </select>
+            </div>
+
+            <!-- SUBMIT -->
             <button type="submit" class="btn btn-success w-100">
-                Upload
+                Upload File
             </button>
 
         </form>
@@ -113,7 +133,7 @@ if (!isset($_SESSION['user_id'])) {
 
 <script>
 function openModal() {
-    document.getElementById("uploadModal").style.display = "block";
+    document.getElementById("uploadModal").style.display = "flex";
 }
 
 function closeModal() {
@@ -128,7 +148,7 @@ window.onclick = function(event) {
     }
 }
 
-// SAFETY: FORCE HIDDEN ON PAGE LOAD
+// RESET FORM ON LOAD
 window.addEventListener("load", function () {
     document.getElementById("uploadModal").style.display = "none";
 
