@@ -15,9 +15,9 @@ if (!$email || empty($password)) {
 }
 
 /*
-    FETCH USER
+    FETCH USER (UPDATED)
 */
-$stmt = $conn->prepare("SELECT id, password, institution_id FROM users WHERE email = ?");
+$stmt = $conn->prepare("SELECT id, name, password, institution_id, role FROM users WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
 
@@ -46,10 +46,12 @@ if (!password_verify($password, $user['password'])) {
 session_regenerate_id(true);
 
 /*
-    LOGIN SUCCESS
+    LOGIN SUCCESS (UPDATED)
 */
 $_SESSION['user_id'] = $user['id'];
+$_SESSION['name'] = $user['name'];
 $_SESSION['institution_id'] = $user['institution_id'];
+$_SESSION['role'] = $user['role']; // 🔥 IMPORTANT
 
 /*
     CLEANUP

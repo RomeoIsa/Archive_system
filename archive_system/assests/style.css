@@ -1,18 +1,180 @@
+
+/* THEME COLORS */
+
+.theme-student {
+    --primary: #1e3a8a;
+    --primary-light: #3b82f6;
+}
+
+.theme-staff {
+    --primary: #166534;
+    --primary-light: #22c55e;
+}
+
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-student {
+    background-color: #0e4392;
+}
+
+.sidebar-staff {
+    background-color: #0f5132;
+}
+
+.sidebar h4 {
+    font-weight: 600;
+}
+
+.sidebar .nav-link {
+    color: #cbd5e1;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    transition: 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.25);
+    color: white;
+    border-left: 3px solid rgba(255,255,255,0.6);
+    padding-left: 7px;
+}
+
+
+
+.sidebar .nav-link.active {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+/* MAIN CONTENT */
+
+.main-content {
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+
+
+/* DASHBOARD STATS */
+
+
+.stat-card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+
+/* BUTTON THEMES */
+
+.theme-student .btn-primary {
+    background-color: var(--primary);
+    border: none;
+}
+
+.theme-staff .btn-primary {
+    background-color: var(--primary);
+    border: none;
+}
+
+
+/* MODAL */
+
 .custom-modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
 
     display: flex;
     justify-content: center;
     align-items: center;
+
+    z-index: 1060;
 }
 
 .custom-modal-content {
-    background: #fff;
+    background: #ffffff;
     width: 100%;
     max-width: 500px;
+
+    border-radius: 14px;
+    padding: 20px;
+
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+
+    animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* LISTS */
+
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid #eee;
+}
+
+
+/* NOTIFICATION */
+
+.notification {
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* FILE CARDS */
+.file-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: 0.2s;
+}
+
+.file-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.file-card small {
+    line-height: 1.4;
+}
+
+/* Better button spacing */
+.file-card .btn {
+    min-width: 80px;
+}
+/*Upload Button animation*/
+#BtnUpload{
+    transition:all 0.3s ease ;
+}
+
+#BtnUpload:hover {
+    background-color: #3b82f6;
+    transform : scale(1.05);
 }
