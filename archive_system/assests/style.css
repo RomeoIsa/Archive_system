@@ -178,3 +178,12 @@
     background-color: #3b82f6;
     transform : scale(1.05);
 }
+
+.file-card {
+    transition: 0.2s ease;
+}
+
+.file-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}

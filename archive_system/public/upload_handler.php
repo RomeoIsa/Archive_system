@@ -8,11 +8,10 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
+$institution_id = $_SESSION['institution_id'] ?? null;
 
-$title = $_POST['title'];
-$description = $_POST['description'];
-
-// NEW: visibility (default = private if not set)
+$title = trim($_POST['title']);
+$description = trim($_POST['description']);
 $visibility = $_POST['visibility'] ?? 'private';
 
 $file = $_FILES['file'];
@@ -22,9 +21,7 @@ $fileTmp = $file['tmp_name'];
 $fileSize = $file['size'];
 $fileError = $file['error'];
 
-// =====================
-// VALIDATION
-// =====================
+/* VALIDATION */
 
 if ($fileError !== 0) {
     $_SESSION['upload_error'] = "File upload error";
@@ -32,7 +29,6 @@ if ($fileError !== 0) {
     exit();
 }
 
-// allowed file types
 $allowed = ['pdf', 'docx', 'jpg', 'png', 'txt'];
 $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
@@ -42,50 +38,43 @@ if (!in_array($fileExt, $allowed)) {
     exit();
 }
 
-// file size limit (5MB)
 if ($fileSize > 5 * 1024 * 1024) {
     $_SESSION['upload_error'] = "File too large (max 5MB)";
     header("Location: dashboard.php");
     exit();
 }
 
-// =====================
-// FILE PROCESSING
-// =====================
+/* FILE PROCESSING */
 
-// generate safe filename
 $newFileName = uniqid("file_", true) . "." . $fileExt;
-
-// correct path
 $uploadPath = "../uploads/" . $newFileName;
 
-// =====================
-// SAVE FILE + DATABASE
-// =====================
+/* SAVE */
 
 if (move_uploaded_file($fileTmp, $uploadPath)) {
 
     $stmt = $conn->prepare("
         INSERT INTO uploads 
-        (user_id, title, description, file_name, file_type, file_size, visibility)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        (user_id, title, description, file_name, file_type, file_size, visibility, institution_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
     $stmt->bind_param(
-        "issssis",
+        "issssisi",
         $user_id,
         $title,
         $description,
         $newFileName,
         $fileExt,
         $fileSize,
-        $visibility
+        $visibility,
+        $institution_id
     );
 
     if ($stmt->execute()) {
         $_SESSION['upload_success'] = "File uploaded successfully";
     } else {
-        $_SESSION['upload_error'] = "Database error while saving file";
+        $_SESSION['upload_error'] = "Database error";
     }
 
 } else {
