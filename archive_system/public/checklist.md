@@ -46,7 +46,7 @@
 
 ---
 
-## 📥 5. Download System (UPDATED)
+## 📥 5. Download System
 
 - [x] Secure download by ID  
 - [x] Download tracking system (logs user + file)  
@@ -55,32 +55,40 @@
 
 ---
 
-## ⭐ 6. Saved / Favorites / Bookmark System (NEW)
+## ⭐ 6. Saved / Favorites / Bookmark System
 
 ### Database
-- [ ] Create `saved` table  
+- [x] Create `saved` table  
   - `id`  
   - `user_id`  
   - `upload_id`  
-  - `created_at`
+  - `created_at`  
+  - Unique constraint (user_id, upload_id)
+
+---
 
 ### Core Features
-- [ ] Save / bookmark file  
-- [ ] Unsave / remove bookmark  
-- [ ] Prevent duplicate saves  
-- [ ] Check saved state per file  
+- [x] Save / bookmark file  
+- [x] Unsave / remove bookmark  
+- [x] Prevent duplicate saves  
+- [x] Check saved state per file  
+
+---
 
 ### UI Features
-- [ ] Save button on file cards  
-- [ ] Toggle state (Save / Saved)  
-- [ ] Saved icon in sidebar  
-- [ ] Saved items page  
+- [x] Save button on file cards  
+- [x] Toggle state (Save / Saved)  
+- [x] Live toggle without page reload (AJAX)  
+- [x] Saved icon/button integration in library  
+
+---
 
 ### Saved Page
-- [ ] List all bookmarked files  
-- [ ] Remove saved items  
+- [x] List all bookmarked files  
+- [x] Remove saved items  
 - [ ] Search saved items  
 - [ ] Filter by file type  
+- [ ] Match full library UI (badges, metadata, polish)
 
 ---
 
@@ -100,11 +108,13 @@
 - [x] File type filtering  
 - [x] Institution-based filtering  
 - [x] Visibility rules  
+- [x] Saved state detection per file  
 
 ### Improvements
 - [ ] Advanced filters (size, date range, popularity)  
 - [ ] Most downloaded sorting  
 - [ ] Most saved sorting  
+- [ ] Save count display  
 
 ---
 
@@ -115,12 +125,13 @@
 - [x] Improved file cards  
 - [x] Icon-based actions  
 - [x] Clean badge system  
+- [x] Consistent card layout across pages  
 
 ### Improvements
 - [ ] Empty states design  
 - [ ] Loading states  
 - [ ] Toast notifications  
-- [ ] Save/unsave feedback animation  
+- [ ] Save/unsave animation feedback  
 
 ---
 
@@ -163,24 +174,15 @@
 
 ---
 
-## 🚀 PRIORITY ROADMAP
+## 🚀 PRIORITY ROADMAP (UPDATED)
 
-### NEXT BUILD PHASE
+### NEXT STEPS
 
-1. ⭐ Saved / Favorites system (DB + UI + toggle logic)  
-2. 📊 Dashboard analytics charts (uploads + downloads trends)  
-3. 🔥 Saved items sidebar integration  
-4. 💰 Staff earnings breakdown per upload  
-5. 📈 Top uploads / top downloads leaderboard  
+1. 🔍 Add search + filters to Saved page  
+2. 📊 Add “save count” to files  
+3. 📈 Implement “Most Saved” sorting in library  
+4. ⭐ Improve saved page UI (badges, uploader, file info)  
+5. 📉 Add analytics (downloads + saves trends)
 
 ---
 
-## ⚡ CURRENT STAGE
-
-You are now in:
-
-> **Phase 3: Platform Intelligence Layer**
-
-Where the system evolves from:
-- Functional system ✔  
-- Into smart academic platform ✔  

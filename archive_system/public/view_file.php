@@ -110,13 +110,14 @@ $fileType = strtolower($file['file_type']);
         </div>
 
         <a class="btn btn-success"
-           href="download.php?file=<?= $file['file_name'] ?>">
+           href="download.php?id=<?= $file['id'] ?>">
            Download File
         </a>
 
     <?php endif; ?>
 
 </div>
+
 
 </body>
 </html>

@@ -24,9 +24,11 @@ $search = trim($search);
 
 /* QUERY */
 $sql = "
-SELECT uploads.*, users.name AS uploader_name
+SELECT uploads.*, users.name AS uploader_name, saved.upload_id AS saved_upload_id
 FROM uploads
 JOIN users ON uploads.user_id = users.id
+LEFT JOIN saved 
+ON uploads.id = saved.upload_id AND saved.user_id = ?
 WHERE 
 (
     uploads.visibility = 'public'
@@ -36,10 +38,11 @@ AND (uploads.title LIKE ? OR uploads.description LIKE ?)
 ";
 
 $params = [];
-$types = "iss";
+$types = "iiss";
 
 $like = "%$search%";
 
+$params[] = $user_id;          // NEW (for saved join)
 $params[] = $institution_id;
 $params[] = $like;
 $params[] = $like;
@@ -51,8 +54,8 @@ if (!empty($type)) {
 }
 
 /* SORT */
-$sql .= ($sort === "oldest") 
-    ? " ORDER BY uploads.created_at ASC" 
+$sql .= ($sort === "oldest")
+    ? " ORDER BY uploads.created_at ASC"
     : " ORDER BY uploads.created_at DESC";
 
 $stmt = $conn->prepare($sql);
@@ -63,6 +66,7 @@ $result = $stmt->get_result();
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Shared Library</title>
 
@@ -72,154 +76,195 @@ $result = $stmt->get_result();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 
+
 <body class="<?= $themeClass; ?>">
 
-<div class="d-flex">
+    <div class="d-flex">
 
-    <?php include "../includes/sidebar.php"; ?>
+        <?php include "../includes/sidebar.php"; ?>
 
-    <div class="main-content flex-grow-1 p-4">
+        <div class="main-content flex-grow-1 p-4">
 
-        <!-- HEADER -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-0"><i class="bi bi-book"></i> Shared Library</h4>
-                <small class="text-muted">Browse materials uploaded by others</small>
-            </div>
-
-            <div class="d-flex align-items-center gap-3">
-                <strong><?= htmlspecialchars($name) ?></strong>
-                <img src="https://via.placeholder.com/35" class="rounded-circle">
-            </div>
-        </div>
-
-        <!-- SEARCH + FILTER -->
-        <form method="GET" class="mb-4">
-            <div class="row g-2 align-items-center">
-
-                <div class="col-md-5">
-                    <input 
-                        type="text" 
-                        name="search" 
-                        class="form-control"
-                        placeholder="Search by title or description..."
-                        value="<?= htmlspecialchars($search) ?>"
-                    >
+            <!-- HEADER -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="mb-0"><i class="bi bi-book"></i> Shared Library</h4>
+                    <small class="text-muted">Browse materials uploaded by others</small>
                 </div>
 
-                <div class="col-md-2">
-                    <select name="type" class="form-select">
-                        <option value="">All Types</option>
-                        <option value="pdf" <?= $type == 'pdf' ? 'selected' : '' ?>>PDF</option>
-                        <option value="docx" <?= $type == 'docx' ? 'selected' : '' ?>>DOCX</option>
-                        <option value="jpg" <?= $type == 'jpg' ? 'selected' : '' ?>>JPG</option>
-                        <option value="png" <?= $type == 'png' ? 'selected' : '' ?>>PNG</option>
-                        <option value="txt" <?= $type == 'txt' ? 'selected' : '' ?>>TXT</option>
-                    </select>
+                <div class="d-flex align-items-center gap-3">
+                    <strong><?= htmlspecialchars($name) ?></strong>
+                    <img src="https://via.placeholder.com/35" class="rounded-circle">
                 </div>
-
-                <div class="col-md-2">
-                    <select name="sort" class="form-select">
-                        <option value="latest" <?= $sort == 'latest' ? 'selected' : '' ?>>Latest</option>
-                        <option value="oldest" <?= $sort == 'oldest' ? 'selected' : '' ?>>Oldest</option>
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <button class="btn btn-primary w-100">
-                        <i class="bi bi-search"></i> Search
-                    </button>
-                </div>
-
-            </div>
-        </form>
-
-        <!-- RESULTS -->
-        <?php if ($result->num_rows === 0): ?>
-
-            <div class="alert alert-info">
-                No materials found. Try adjusting your search or filters.
             </div>
 
-        <?php else: ?>
+            <!-- SEARCH + FILTER -->
+            <form method="GET" class="mb-4">
+                <div class="row g-2 align-items-center">
 
-            <div class="row">
-
-                <?php while ($row = $result->fetch_assoc()): ?>
-
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow-sm border-0 h-100 p-3 file-card">
-
-                        <!-- TITLE -->
-                        <h6 class="fw-semibold mb-1">
-                            <?= htmlspecialchars($row['title']) ?>
-                        </h6>
-
-                        <!-- DESCRIPTION -->
-                        <p class="text-muted small mb-2">
-                            <?= htmlspecialchars(substr($row['description'], 0, 90)) ?>
-                            <?= strlen($row['description']) > 90 ? '...' : '' ?>
-                        </p>
-
-                        <!-- META -->
-                        <div class="small text-muted mb-2">
-                            <i class="bi bi-person"></i>
-                            <?= htmlspecialchars($row['uploader_name']) ?>
-                        </div>
-
-                        <!-- FILE INFO -->
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-
-                            <!-- File Type Badge -->
-                            <span class="badge bg-light text-dark border">
-                                <i class="bi bi-file-earmark"></i>
-                                <?= strtoupper($row['file_type']) ?>
-                            </span>
-
-                            <!-- File Size -->
-                            <small class="text-muted">
-                                <?= round($row['file_size'] / 1024, 2) ?> KB
-                            </small>
-
-                        </div>
-
-                        <!-- VISIBILITY -->
-                        <div class="mb-3">
-                            <?php if ($row['visibility'] === 'public'): ?>
-                                <span class="badge bg-success">Public</span>
-                            <?php elseif ($row['visibility'] === 'institution'): ?>
-                                <span class="badge bg-primary">Institution</span>
-                            <?php else: ?>
-                                <span class="badge bg-secondary">Private</span>
-                            <?php endif; ?>
-                        </div>
-
-                        <!-- ACTIONS -->
-                        <div class="mt-auto d-flex gap-2">
-
-                            <a href="view_file.php?id=<?= $row['id'] ?>" 
-                               class="btn btn-outline-primary btn-sm w-50">
-                               <i class="bi bi-eye"></i> View
-                            </a>
-
-                            <a href="download.php?id=<?= $row['id'] ?>" 
-                               class="btn btn-success btn-sm w-50">
-                               <i class="bi bi-download"></i> Download
-                            </a>
-
-                        </div>
-
+                    <div class="col-md-5">
+                        <input
+                            type="text"
+                            name="search"
+                            class="form-control"
+                            placeholder="Search by title or description..."
+                            value="<?= htmlspecialchars($search) ?>">
                     </div>
+
+                    <div class="col-md-2">
+                        <select name="type" class="form-select">
+                            <option value="">All Types</option>
+                            <option value="pdf" <?= $type == 'pdf' ? 'selected' : '' ?>>PDF</option>
+                            <option value="docx" <?= $type == 'docx' ? 'selected' : '' ?>>DOCX</option>
+                            <option value="jpg" <?= $type == 'jpg' ? 'selected' : '' ?>>JPG</option>
+                            <option value="png" <?= $type == 'png' ? 'selected' : '' ?>>PNG</option>
+                            <option value="txt" <?= $type == 'txt' ? 'selected' : '' ?>>TXT</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select name="sort" class="form-select">
+                            <option value="latest" <?= $sort == 'latest' ? 'selected' : '' ?>>Latest</option>
+                            <option value="oldest" <?= $sort == 'oldest' ? 'selected' : '' ?>>Oldest</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+
+            <!-- RESULTS -->
+            <?php if ($result->num_rows === 0): ?>
+
+                <div class="alert alert-info">
+                    No materials found. Try adjusting your search or filters.
                 </div>
 
-                <?php endwhile; ?>
+            <?php else: ?>
 
-            </div>
+                <div class="row">
 
-        <?php endif; ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <?php
+                        $isSaved = !is_null($row['saved_upload_id']);
+                        ?>
 
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow-sm border-0 h-100 p-3 file-card">
+
+                                <!-- TITLE -->
+                                <h6 class="fw-semibold mb-1">
+                                    <?= htmlspecialchars($row['title']) ?>
+                                </h6>
+
+                                <!-- DESCRIPTION -->
+                                <p class="text-muted small mb-2">
+                                    <?= htmlspecialchars(substr($row['description'], 0, 90)) ?>
+                                    <?= strlen($row['description']) > 90 ? '...' : '' ?>
+                                </p>
+
+                                <!-- META -->
+                                <div class="small text-muted mb-2">
+                                    <i class="bi bi-person"></i>
+                                    <?= htmlspecialchars($row['uploader_name']) ?>
+                                </div>
+
+                                <!-- FILE INFO -->
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                    <!-- File Type Badge -->
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="bi bi-file-earmark"></i>
+                                        <?= strtoupper($row['file_type']) ?>
+                                    </span>
+
+                                    <!-- File Size -->
+                                    <small class="text-muted">
+                                        <?= round($row['file_size'] / 1024, 2) ?> KB
+                                    </small>
+
+                                </div>
+
+                                <!-- VISIBILITY -->
+                                <div class="mb-3">
+                                    <?php if ($row['visibility'] === 'public'): ?>
+                                        <span class="badge bg-success">Public</span>
+                                    <?php elseif ($row['visibility'] === 'institution'): ?>
+                                        <span class="badge bg-primary">Institution</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">Private</span>
+                                    <?php endif; ?>
+                                </div>
+
+                                <!-- ACTIONS -->
+                                <div class="mt-auto d-flex gap-2 flex-wrap">
+
+                                    <a href="view_file.php?id=<?= $row['id'] ?>"
+                                        class="btn btn-outline-primary btn-sm w-50">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+
+                                    <a href="download.php?id=<?= $row['id'] ?>"
+                                        class="btn btn-success btn-sm w-50">
+                                        <i class="bi bi-download"></i> Download
+                                    </a>
+
+                                    <button
+                                        class="btn btn-sm <?= $isSaved ? 'btn-success' : 'btn-outline-secondary'; ?> save-btn w-25"
+                                        data-id="<?= $row['id']; ?>">
+                                        <i class="bi <?= $isSaved ? 'bi-bookmark-check-fill' : 'bi-bookmark-plus-fill'; ?>"></i>
+                                        <?= $isSaved ? 'Saved' : 'Save'; ?>
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                    <?php endwhile; ?>
+
+                </div>
+
+            <?php endif; ?>
+
+        </div>
     </div>
-</div>
+<script>
+    document.querySelectorAll('.save-btn').forEach(button => {
+        button.addEventListener('click', function() {
 
+            let btn = this;
+            let uploadId = btn.getAttribute('data-id');
+
+            fetch('toggle_save.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'upload_id=' + uploadId
+                })
+                .then(res => res.text())
+                .then(data => {
+
+                    if (data === "saved") {
+                        btn.classList.remove('btn-outline-secondary');
+                        btn.classList.add('btn-success');
+                        btn.innerHTML = '<i class="bi bi-bookmark-check-fill"></i> Saved';
+                    } else {
+                        btn.classList.remove('btn-success');
+                        btn.classList.add('btn-outline-secondary');
+                        btn.innerHTML = '<i class="bi bi-bookmark-plus-fill"></i> Save';
+                    }
+
+                });
+        });
+    });
+</script>
 </body>
+
 </html>

@@ -54,8 +54,11 @@ $sidebarClass = ($role === 'staff') ? 'sidebar-staff' : 'sidebar-student';
     <?php endif; ?>
 
     <!-- STATIC ITEMS (UNCHANGED) -->
-    <li><a class="nav-link text-light">Favorites</a></li>
-    <li><a class="nav-link text-light">Recents</a></li>
+ <li>
+        <a href="saved.php" class="nav-link text-light <?php echo ($activePage == 'saved') ? 'active' : ''; ?>">
+            Favorites
+        </a>
+    </li>    <li><a class="nav-link text-light">Recents</a></li>
     <li><a class="nav-link text-light">Messages</a></li>
     <li><a class="nav-link text-light">Profile settings</a></li>
 

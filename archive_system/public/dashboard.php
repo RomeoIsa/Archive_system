@@ -41,7 +41,7 @@ if ($role === 'student') {
     }
 
     $stats = [
-        ['label' => ' <i class="bi bi-cloud-upload"></i> &nbsp; Total Uploads', 'value' => $uploads],
+        ['label' => ' <i class="bi bi-cloud-upload" ></i> &nbsp; Total Uploads', 'value' => $uploads],
         ['label' => '<i class="bi bi-cloud-download"></i> &nbsp; Total Downloads', 'value' => $downloads],
         ['label' => '<i class="bi bi-wallet"></i> &nbsp; Purchases', 'value' => 0],
         ['label' => '<i class="bi bi-bookmark-fill"></i> &nbsp; Saved', 'value' => $saved],

@@ -25,6 +25,7 @@ if ($result->num_rows === 0) {
     die("File not found");
 }
 
+
 $file = $result->fetch_assoc();
 
 /* ACCESS CONTROL */
@@ -59,7 +60,10 @@ if (!file_exists($filePath)) {
 
 header("Content-Description: File Transfer");
 header("Content-Type: application/octet-stream");
-header("Content-Disposition: attachment; filename=\"" . basename($filePath) . "\"");
+$cleanTitle = preg_replace("/[^a-zA-Z0-9-_ ]/", "", $file['title']);
+$originalName = $cleanTitle . '.' . $file['file_type'];
+
+header("Content-Disposition: attachment; filename=\"" . $originalName . "\"; filename*=UTF-8''" . rawurlencode($originalName));
 
 readfile($filePath);
 exit();
