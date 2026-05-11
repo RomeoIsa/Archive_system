@@ -86,13 +86,52 @@
 ### Saved Page
 - [x] List all bookmarked files  
 - [x] Remove saved items  
-- [ ] Search saved items  
-- [ ] Filter by file type  
-- [ ] Match full library UI (badges, metadata, polish)
+- [x] Search saved items  
+- [x] Filter by file type  
+- [x] Match full library UI (badges, metadata, polish)  
+- [x] Add saved star indicator  
+- [x] Add animated remove interaction  
 
 ---
 
-## 📂 7. My Uploads Page
+## 🕒 7. Recent Activity System
+
+### Database
+- [x] Create `recent_views` table  
+  - `id`  
+  - `user_id`  
+  - `upload_id`  
+  - `viewed_at`  
+
+---
+
+### Core Features
+- [x] Track viewed files  
+- [x] Prevent duplicate recent entries  
+- [x] Update latest view timestamp  
+- [x] View history per user  
+
+---
+
+### Dashboard Features
+- [x] Recently viewed widget  
+- [x] Latest 5 viewed files  
+- [x] View All button  
+- [x] Database-driven recent activity  
+
+---
+
+### Recent Activity Page
+- [x] Full recent activity page  
+- [x] Group viewed files by date  
+- [x] Today / Yesterday sections  
+- [x] Match library card styling  
+- [x] Open Again button  
+- [x] Chronological ordering  
+
+---
+
+## 📂 8. My Uploads Page
 
 - [x] Display user uploads  
 - [x] Delete uploads  
@@ -102,7 +141,7 @@
 
 ---
 
-## 🌐 8. Library / Browse System
+## 🌐 9. Library / Browse System
 
 - [x] Global search  
 - [x] File type filtering  
@@ -118,7 +157,7 @@
 
 ---
 
-## 🎨 9. UI / UX
+## 🎨 10. UI / UX
 
 - [x] Bootstrap layout  
 - [x] Responsive design  
@@ -132,57 +171,52 @@
 - [ ] Loading states  
 - [ ] Toast notifications  
 - [ ] Save/unsave animation feedback  
+- [ ] Dashboard skeleton loaders  
 
 ---
 
-## 🧭 10. Role-Based Navigation
+## 🧭 11. Role-Based Navigation
 
 - [x] Dynamic sidebar base system  
 - [x] Shared navigation for all roles  
-- [x] Staff-only extra tabs:
-  - Earnings  
-  - Downloads  
-  - Analytics  
+- [x] Recent Activity sidebar link  
+- [x] Active page highlighting  
+
+### Staff-only extra tabs
+- [x] Earnings  
+- [x] Downloads  
+- [x] Analytics  
 
 ---
 
-## 📊 11. Dashboard System
+## 📊 12. Dashboard System
 
 - [x] Role-based stat cards  
 - [x] Database-driven metrics  
 - [x] Student dashboard stats  
 - [x] Staff dashboard stats  
+- [x] Recently viewed section  
+- [x] Database-powered recent widget  
 
 ### Improvements
 - [ ] Real-time analytics charts  
 - [ ] Trending uploads widget  
-- [ ] Recent activity from database  
+- [ ] Download trend graphs  
+- [ ] Personalized recommendations  
 
 ---
 
-## 🛡️ 12. Security
+## 🛡️ 13. Security
 
 - [x] Prepared statements (partial usage)  
 - [x] File validation  
 - [x] Upload restrictions  
 - [x] Access control for downloads  
+- [x] Access control for file viewing  
 
 ### Improvements
 - [ ] Rate limiting uploads  
 - [ ] Full RBAC permission system  
 - [ ] Audit logs for actions  
-
----
-
-## 🚀 PRIORITY ROADMAP (UPDATED)
-
-### NEXT STEPS
-
-1. 🔍 Add search + filters to Saved page  
-2. 📊 Add “save count” to files  
-3. 📈 Implement “Most Saved” sorting in library  
-4. ⭐ Improve saved page UI (badges, uploader, file info)  
-5. 📉 Add analytics (downloads + saves trends)
-
----
-
+- [ ] CSRF protection  
+- [ ] Secure MIME verification  

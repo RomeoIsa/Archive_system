@@ -11,6 +11,7 @@ require "../config/db.php";
 $user_id = $_SESSION['user_id'];
 $role = $_SESSION['role'] ?? 'student';
 $name = $_SESSION['name'] ?? 'User';
+
 $themeClass = ($role === 'staff') ? 'theme-staff' : 'theme-student';
 
 $activePage = 'dashboard';
@@ -22,29 +23,36 @@ $stats = [];
 ------------------------*/
 if ($role === 'student') {
 
-    $uploads = $conn->query("SELECT COUNT(*) as total FROM uploads WHERE user_id = $user_id")
-        ->fetch_assoc()['total'] ?? 0;
+    $uploads = $conn->query("
+        SELECT COUNT(*) as total
+        FROM uploads
+        WHERE user_id = $user_id
+    ")->fetch_assoc()['total'] ?? 0;
 
-    /* SAFE DOWNLOAD CHECK */
     $downloads = 0;
     $check = $conn->query("SHOW TABLES LIKE 'downloads'");
     if ($check && $check->num_rows > 0) {
-        $downloads = $conn->query("SELECT COUNT(*) as total FROM downloads WHERE user_id = $user_id")
-            ->fetch_assoc()['total'] ?? 0;
+        $downloads = $conn->query("
+            SELECT COUNT(*) as total
+            FROM downloads
+            WHERE user_id = $user_id
+        ")->fetch_assoc()['total'] ?? 0;
     }
 
     $saved = 0;
     $checkSaved = $conn->query("SHOW TABLES LIKE 'saved'");
     if ($checkSaved && $checkSaved->num_rows > 0) {
-        $saved = $conn->query("SELECT COUNT(*) as total FROM saved WHERE user_id = $user_id")
-            ->fetch_assoc()['total'] ?? 0;
+        $saved = $conn->query("
+            SELECT COUNT(*) as total
+            FROM saved
+            WHERE user_id = $user_id
+        ")->fetch_assoc()['total'] ?? 0;
     }
 
     $stats = [
-        ['label' => ' <i class="bi bi-cloud-upload" ></i> &nbsp; Total Uploads', 'value' => $uploads],
-        ['label' => '<i class="bi bi-cloud-download"></i> &nbsp; Total Downloads', 'value' => $downloads],
-        ['label' => '<i class="bi bi-wallet"></i> &nbsp; Purchases', 'value' => 0],
-        ['label' => '<i class="bi bi-bookmark-fill"></i> &nbsp; Saved', 'value' => $saved],
+        ['label' => '<i class="bi bi-cloud-upload"></i> Uploads', 'value' => $uploads],
+        ['label' => '<i class="bi bi-cloud-download"></i> Downloads', 'value' => $downloads],
+        ['label' => '<i class="bi bi-bookmark-fill"></i> Saved', 'value' => $saved],
     ];
 }
 
@@ -53,33 +61,65 @@ if ($role === 'student') {
 ------------------------*/
 if ($role === 'staff') {
 
-    $uploads = $conn->query("SELECT COUNT(*) as total FROM uploads")
-        ->fetch_assoc()['total'] ?? 0;
+    $uploads = $conn->query("
+        SELECT COUNT(*) as total FROM uploads
+    ")->fetch_assoc()['total'] ?? 0;
 
     $downloads = 0;
     $check = $conn->query("SHOW TABLES LIKE 'downloads'");
     if ($check && $check->num_rows > 0) {
-        $downloads = $conn->query("SELECT COUNT(*) as total FROM downloads")
-            ->fetch_assoc()['total'] ?? 0;
+        $downloads = $conn->query("
+            SELECT COUNT(*) as total FROM downloads
+        ")->fetch_assoc()['total'] ?? 0;
     }
 
-    $earnings = 0;
-    $checkEarn = $conn->query("SHOW TABLES LIKE 'earnings'");
-    if ($checkEarn && $checkEarn->num_rows > 0) {
-        $earnings = $conn->query("SELECT SUM(amount) as total FROM earnings")
-            ->fetch_assoc()['total'] ?? 0;
-    }
-
-    $users = $conn->query("SELECT COUNT(*) as total FROM users")
-        ->fetch_assoc()['total'] ?? 0;
+    $users = $conn->query("
+        SELECT COUNT(*) as total FROM users
+    ")->fetch_assoc()['total'] ?? 0;
 
     $stats = [
-        ['label' => 'Total Uploads', 'value' => $uploads],
-        ['label' => 'Total Downloads', 'value' => $downloads],
-        ['label' => 'Earnings', 'value' => '₦' . number_format($earnings)],
-        ['label' => 'Active Users', 'value' => $users],
+        ['label' => 'Uploads', 'value' => $uploads],
+        ['label' => 'Downloads', 'value' => $downloads],
+        ['label' => 'Users', 'value' => $users],
     ];
 }
+
+/* -----------------------
+   RECENTLY VIEWED
+------------------------*/
+$recentStmt = $conn->prepare("
+    SELECT uploads.id,
+           uploads.title,
+           uploads.file_type,
+           recent_views.viewed_at
+    FROM recent_views
+    JOIN uploads ON recent_views.upload_id = uploads.id
+    WHERE recent_views.user_id = ?
+    ORDER BY recent_views.viewed_at DESC
+    LIMIT 5
+");
+
+$recentStmt->bind_param("i", $user_id);
+$recentStmt->execute();
+$recentFiles = $recentStmt->get_result();
+
+/* -----------------------
+   RECENTLY UPLOADED
+------------------------*/
+$recentUploadsStmt = $conn->prepare("
+    SELECT uploads.id,
+           uploads.title,
+           uploads.file_type,
+           uploads.created_at,
+           users.name AS uploader_name
+    FROM uploads
+    JOIN users ON uploads.user_id = users.id
+    ORDER BY uploads.created_at DESC
+    LIMIT 5
+");
+
+$recentUploadsStmt->execute();
+$recentUploads = $recentUploadsStmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -92,7 +132,7 @@ if ($role === 'staff') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 
-<body class="<?php echo $themeClass; ?>">
+<body class="<?= $themeClass; ?>">
 
 <div class="d-flex">
 
@@ -100,34 +140,40 @@ if ($role === 'staff') {
 
     <div class="main-content flex-grow-1 p-4">
 
+        <!-- TOP BAR -->
         <div class="d-flex justify-content-between align-items-center mb-4">
 
             <div></div>
 
             <div class="d-flex align-items-center gap-3">
-                <span class="notification"><i class="bi bi-bell-fill"></i></span>
-                <strong><?php echo $name; ?></strong>
+
+                <strong><?= htmlspecialchars($name); ?></strong>
+
                 <img src="https://via.placeholder.com/35" class="rounded-circle">
             </div>
+
         </div>
 
+        <!-- WELCOME -->
         <div class="d-flex justify-content-between align-items-center">
+
             <div>
-                <h4>Welcome back, <?php echo $name; ?> 👋</h4>
+                <h4>Welcome back, <?= htmlspecialchars($name); ?> 👋</h4>
                 <p class="text-muted">Find, learn and share academic resources.</p>
             </div>
 
-            <button class="btn btn-primary" onclick="openModal()" id="BtnUpload">
+            <button class="btn btn-primary" onclick="openModal()">
                 + Upload Material
             </button>
+
         </div>
 
         <!-- STATS -->
         <div class="row mt-4">
 
             <?php foreach ($stats as $stat): ?>
-                <div class="col-md-3">
-                    <div class="card stat-card p-3">
+                <div class="col-md-4">
+                    <div class="card stat-card p-3 shadow-sm border-0">
                         <h6><?= $stat['label']; ?></h6>
                         <h3><?= $stat['value']; ?></h3>
                     </div>
@@ -136,27 +182,92 @@ if ($role === 'staff') {
 
         </div>
 
+        <!-- RECENT SECTION -->
         <div class="row mt-4">
 
+            <!-- RECENTLY VIEWED -->
             <div class="col-md-6">
-                <div class="card p-3">
-                    <h6>Recent Uploads</h6>
-                    <ul class="list-group">
-                        <li class="list-group-item">Data Structures Notes</li>
-                        <li class="list-group-item">Database Systems</li>
-                        <li class="list-group-item">Calculus Summary</li>
+                <div class="card p-3 shadow-sm border-0">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">
+                            <i class="bi bi-clock-history"></i>
+                            Recently Viewed
+                        </h6>
+                    </div>
+
+                    <ul class="list-group list-group-flush">
+
+                        <?php if ($recentFiles->num_rows === 0): ?>
+                            <li class="list-group-item text-muted">
+                                No recent views yet
+                            </li>
+                        <?php endif; ?>
+
+                        <?php while ($row = $recentFiles->fetch_assoc()): ?>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                                <div>
+                                    <div class="fw-semibold">
+                                        <?= htmlspecialchars($row['title']) ?>
+                                    </div>
+                                    <small class="text-muted">
+                                        <?= strtoupper($row['file_type']) ?>
+                                    </small>
+                                </div>
+
+                                <small class="text-muted">
+                                    <?= date("M j, H:i", strtotime($row['viewed_at'])) ?>
+                                </small>
+
+                            </li>
+                        <?php endwhile; ?>
+
                     </ul>
+
                 </div>
             </div>
 
+            <!-- RECENTLY UPLOADED -->
             <div class="col-md-6">
-                <div class="card p-3">
-                    <h6>Recent Activity</h6>
-                    <ul class="list-group">
-                        <li class="list-group-item">Downloaded notes</li>
-                        <li class="list-group-item">Uploaded file</li>
-                        <li class="list-group-item">Saved material</li>
+                <div class="card p-3 shadow-sm border-0">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">
+                            <i class="bi bi-cloud-upload"></i>
+                            Recently Uploaded
+                        </h6>
+                    </div>
+
+                    <ul class="list-group list-group-flush">
+
+                        <?php if ($recentUploads->num_rows === 0): ?>
+                            <li class="list-group-item text-muted">
+                                No uploads yet
+                            </li>
+                        <?php endif; ?>
+
+                        <?php while ($up = $recentUploads->fetch_assoc()): ?>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                                <div>
+                                    <div class="fw-semibold">
+                                        <?= htmlspecialchars($up['title']) ?>
+                                    </div>
+                                    <small class="text-muted">
+                                        <?= htmlspecialchars($up['uploader_name']) ?>
+                                    </small>
+                                </div>
+
+                                <small class="text-muted">
+                                    <?= date("M j, H:i", strtotime($up['created_at'])) ?>
+                                </small>
+
+                            </li>
+                        <?php endwhile; ?>
+
                     </ul>
+
                 </div>
             </div>
 

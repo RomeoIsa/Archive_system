@@ -58,9 +58,13 @@ $sidebarClass = ($role === 'staff') ? 'sidebar-staff' : 'sidebar-student';
         <a href="saved.php" class="nav-link text-light <?php echo ($activePage == 'saved') ? 'active' : ''; ?>">
             Favorites
         </a>
-    </li>    <li><a class="nav-link text-light">Recents</a></li>
-    <li><a class="nav-link text-light">Messages</a></li>
-    <li><a class="nav-link text-light">Profile settings</a></li>
+    </li>    
+    <li>
+        <a href="recent_activity.php" class="nav-link text-light <?php echo ($activePage == 'recent') ? 'active' : ''; ?>">
+            Recent Activity
+        </a>
+    </li>
+    <li><a class="nav-link text-light">Profile Settings</a></li>
 
 </ul>
 
