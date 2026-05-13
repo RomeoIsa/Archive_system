@@ -64,8 +64,11 @@ $sidebarClass = ($role === 'staff') ? 'sidebar-staff' : 'sidebar-student';
             Recent Activity
         </a>
     </li>
-    <li><a class="nav-link text-light">Profile Settings</a></li>
-
+ <li>
+        <a href="settings.php" class="nav-link text-light <?php echo ($activePage == 'settings') ? 'active' : ''; ?>">
+            Profile Settings
+        </a>
+    </li>
 </ul>
 
     <a href="logout.php" class="btn btn-danger w-100 mt-auto">Logout</a>

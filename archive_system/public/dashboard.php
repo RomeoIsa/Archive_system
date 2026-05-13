@@ -16,7 +16,18 @@ $themeClass = ($role === 'staff') ? 'theme-staff' : 'theme-student';
 
 $activePage = 'dashboard';
 
-$stats = [];
+/* =======================
+   GET USER PROFILE IMAGE
+======================= */
+$stmt = $conn->prepare("SELECT profile_image FROM users WHERE id = ? LIMIT 1");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$res = $stmt->get_result();
+$userData = $res->fetch_assoc();
+
+$profile_image = !empty($userData['profile_image'])
+    ? '../uploads/profiles/' . $userData['profile_image']
+    : '../assets/images/default-avatar.png';
 
 /* -----------------------
    STUDENT STATS
@@ -149,7 +160,15 @@ $recentUploads = $recentUploadsStmt->get_result();
 
                 <strong><?= htmlspecialchars($name); ?></strong>
 
-                <img src="https://via.placeholder.com/35" class="rounded-circle">
+                <!-- PROFILE SHORTCUT -->
+                <a href="settings.php" title="Profile Settings">
+                    <img src="<?= $profile_image ?>"
+                         class="dashboard-avatar rounded-circle mb-4"
+                         width="120"
+                         height="120"
+                         alt="Profile">
+                </a>
+
             </div>
 
         </div>
