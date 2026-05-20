@@ -11,30 +11,78 @@ $user_id = $_SESSION['user_id'];
 $institution_id = $_SESSION['institution_id'] ?? 0;
 $role = $_SESSION['role'] ?? 'student';
 $name = $_SESSION['name'] ?? 'User';
-$themeClass = ($role === 'staff') ? 'theme-staff' : 'theme-student';
+
+$themeClass = ($role === 'staff')
+    ? 'theme-staff'
+    : 'theme-student';
 
 $activePage = 'library';
 
-/* FILTERS */
+/*
+|--------------------------------------------------------------------------
+| FILE ICON HELPER
+|--------------------------------------------------------------------------
+*/
+function getFileIcon($type)
+{
+    return match (strtolower($type)) {
+        'pdf' => '📕',
+        'doc', 'docx' => '📘',
+        'ppt', 'pptx' => '📊',
+        'xls', 'xlsx' => '📗',
+        'jpg', 'jpeg', 'png', 'webp' => '🖼️',
+        'zip', 'rar', '7z' => '🗜️',
+        'mp4' => '🎬',
+        'mp3', 'wav' => '🎵',
+        'txt' => '📄',
+        default => '📁'
+    };
+}
+
+/*
+|--------------------------------------------------------------------------
+| FILTERS
+|--------------------------------------------------------------------------
+*/
 $search = $_GET['search'] ?? "";
 $type = $_GET['type'] ?? "";
 $sort = $_GET['sort'] ?? "latest";
 
 $search = trim($search);
 
-/* QUERY */
+/*
+|--------------------------------------------------------------------------
+| QUERY
+|--------------------------------------------------------------------------
+*/
 $sql = "
-SELECT uploads.*, users.name AS uploader_name, saved.upload_id AS saved_upload_id
+SELECT 
+    uploads.*, 
+    users.name AS uploader_name,
+    saved.upload_id AS saved_upload_id
+
 FROM uploads
-JOIN users ON uploads.user_id = users.id
+
+JOIN users 
+ON uploads.user_id = users.id
+
 LEFT JOIN saved 
-ON uploads.id = saved.upload_id AND saved.user_id = ?
+ON uploads.id = saved.upload_id 
+AND saved.user_id = ?
+
 WHERE 
 (
     uploads.visibility = 'public'
-    OR (uploads.visibility = 'institution' AND uploads.institution_id = ?)
+    OR (
+        uploads.visibility = 'institution'
+        AND uploads.institution_id = ?
+    )
 )
-AND (uploads.title LIKE ? OR uploads.description LIKE ?)
+
+AND (
+    uploads.title LIKE ?
+    OR uploads.description LIKE ?
+)
 ";
 
 $params = [];
@@ -42,18 +90,29 @@ $types = "iiss";
 
 $like = "%$search%";
 
-$params[] = $user_id;          // NEW (for saved join)
+$params[] = $user_id;
 $params[] = $institution_id;
 $params[] = $like;
 $params[] = $like;
 
+/*
+|--------------------------------------------------------------------------
+| FILE TYPE FILTER
+|--------------------------------------------------------------------------
+*/
 if (!empty($type)) {
+
     $sql .= " AND uploads.file_type = ?";
+
     $types .= "s";
     $params[] = $type;
 }
 
-/* SORT */
+/*
+|--------------------------------------------------------------------------
+| SORTING
+|--------------------------------------------------------------------------
+*/
 $sql .= ($sort === "oldest")
     ? " ORDER BY uploads.created_at ASC"
     : " ORDER BY uploads.created_at DESC";
@@ -61,6 +120,7 @@ $sql .= ($sort === "oldest")
 $stmt = $conn->prepare($sql);
 $stmt->bind_param($types, ...$params);
 $stmt->execute();
+
 $result = $stmt->get_result();
 ?>
 
@@ -68,14 +128,16 @@ $result = $stmt->get_result();
 <html>
 
 <head>
+
     <title>Shared Library</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="../assests/style.css">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-</head>
 
+</head>
 
 <body class="<?= $themeClass; ?>">
 
@@ -86,63 +148,147 @@ $result = $stmt->get_result();
         <div class="main-content flex-grow-1 p-4">
 
             <!-- HEADER -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center page-header">
+
                 <div>
-                    <h4 class="mb-0"><i class="bi bi-book"></i> Shared Library</h4>
-                    <small class="text-muted">Browse materials uploaded by others</small>
+
+                    <h4 class="mb-1">
+                        <i class="bi bi-book"></i>
+                        Shared Library
+                    </h4>
+
+                    <small class="text-muted">
+                        Browse materials uploaded by students and lecturers
+                    </small>
+
                 </div>
 
                 <div class="d-flex align-items-center gap-3">
-                    <strong><?= htmlspecialchars($name) ?></strong>
-                    <img src="https://via.placeholder.com/35" class="rounded-circle">
+
+                    <strong>
+                        <?= htmlspecialchars($name) ?>
+                    </strong>
+
+                    <img
+                        src="https://via.placeholder.com/40"
+                        class="rounded-circle dashboard-avatar"
+                        width="40"
+                        height="40">
+
                 </div>
+
             </div>
 
-            <!-- SEARCH + FILTER -->
+            <!-- SEARCH + FILTERS -->
             <form method="GET" class="mb-4">
+
                 <div class="row g-2 align-items-center">
 
-                    <div class="col-md-5">
+                    <!-- SEARCH -->
+                    <div class="col-md-5">  
+
                         <input
                             type="text"
                             name="search"
-                            class="form-control"
+                            class="form-control search-box"
                             placeholder="Search by title or description..."
                             value="<?= htmlspecialchars($search) ?>">
+
                     </div>
 
+                    <!-- TYPE -->
                     <div class="col-md-2">
-                        <select name="type" class="form-select">
+
+                        <select name="type" class="form-select filter-select">
+
                             <option value="">All Types</option>
-                            <option value="pdf" <?= $type == 'pdf' ? 'selected' : '' ?>>PDF</option>
-                            <option value="docx" <?= $type == 'docx' ? 'selected' : '' ?>>DOCX</option>
-                            <option value="jpg" <?= $type == 'jpg' ? 'selected' : '' ?>>JPG</option>
-                            <option value="png" <?= $type == 'png' ? 'selected' : '' ?>>PNG</option>
-                            <option value="txt" <?= $type == 'txt' ? 'selected' : '' ?>>TXT</option>
+
+                            <option value="pdf" <?= $type == 'pdf' ? 'selected' : '' ?>>
+                                PDF
+                            </option>
+
+                            <option value="docx" <?= $type == 'docx' ? 'selected' : '' ?>>
+                                DOCX
+                            </option>
+
+                            <option value="pptx" <?= $type == 'pptx' ? 'selected' : '' ?>>
+                                PPTX
+                            </option>
+
+                            <option value="xlsx" <?= $type == 'xlsx' ? 'selected' : '' ?>>
+                                XLSX
+                            </option>
+
+                            <option value="jpg" <?= $type == 'jpg' ? 'selected' : '' ?>>
+                                JPG
+                            </option>
+
+                            <option value="png" <?= $type == 'png' ? 'selected' : '' ?>>
+                                PNG
+                            </option>
+
+                            <option value="txt" <?= $type == 'txt' ? 'selected' : '' ?>>
+                                TXT
+                            </option>
+
+                            <option value="zip" <?= $type == 'zip' ? 'selected' : '' ?>>
+                                ZIP
+                            </option>
+
                         </select>
+
                     </div>
 
+                    <!-- SORT -->
                     <div class="col-md-2">
-                        <select name="sort" class="form-select">
-                            <option value="latest" <?= $sort == 'latest' ? 'selected' : '' ?>>Latest</option>
-                            <option value="oldest" <?= $sort == 'oldest' ? 'selected' : '' ?>>Oldest</option>
+
+                        <select name="sort" class="form-select filter-select">
+
+                            <option value="latest" <?= $sort == 'latest' ? 'selected' : '' ?>>
+                                Latest
+                            </option>
+
+                            <option value="oldest" <?= $sort == 'oldest' ? 'selected' : '' ?>>
+                                Oldest
+                            </option>
+
                         </select>
+
                     </div>
 
+                    <!-- SEARCH BUTTON -->
                     <div class="col-md-2">
+
                         <button class="btn btn-primary w-100">
-                            <i class="bi bi-search"></i> Search
+
+                            <i class="bi bi-search"></i>
+                            Search
+
                         </button>
+
                     </div>
 
                 </div>
+
             </form>
 
             <!-- RESULTS -->
             <?php if ($result->num_rows === 0): ?>
 
-                <div class="alert alert-info">
-                    No materials found. Try adjusting your search or filters.
+                <div class="empty-state">
+
+                    <div class="empty-state-icon">
+                        🚀
+                    </div>
+
+                    <h5>
+                        No Files Found
+                    </h5>
+
+                    <p>
+                        Try adjusting your search or filters.
+                    </p>
+
                 </div>
 
             <?php else: ?>
@@ -150,80 +296,130 @@ $result = $stmt->get_result();
                 <div class="row">
 
                     <?php while ($row = $result->fetch_assoc()): ?>
+
                         <?php
                         $isSaved = !is_null($row['saved_upload_id']);
                         ?>
 
                         <div class="col-md-4 mb-4">
-                            <div class="card shadow-sm border-0 h-100 p-3 file-card">
 
-                                <!-- TITLE -->
-                                <h6 class="fw-semibold mb-1">
-                                    <?= htmlspecialchars($row['title']) ?>
-                                </h6>
+                            <div class="card h-100 p-3 file-card">
 
-                                <!-- DESCRIPTION -->
-                                <p class="text-muted small mb-2">
-                                    <?= htmlspecialchars(substr($row['description'], 0, 90)) ?>
-                                    <?= strlen($row['description']) > 90 ? '...' : '' ?>
-                                </p>
+                                <!-- TOP -->
+                                <div class="d-flex align-items-center mb-3">
 
-                                <!-- META -->
-                                <div class="small text-muted mb-2">
-                                    <i class="bi bi-person"></i>
-                                    <?= htmlspecialchars($row['uploader_name']) ?>
+                                    <div class="file-icon">
+                                        <?= getFileIcon($row['file_type']) ?>
+                                    </div>
+
+                                    <div class="flex-grow-1">
+
+                                        <div class="file-title">
+                                            <?= htmlspecialchars($row['title']) ?>
+                                        </div>
+
+                                        <div class="meta-text">
+
+                                            <i class="bi bi-person"></i>
+
+                                            <?= htmlspecialchars($row['uploader_name']) ?>
+
+                                        </div>
+
+                                    </div>
+
                                 </div>
 
-                                <!-- FILE INFO -->
-                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                <!-- DESCRIPTION -->
+                                <p class="file-description mb-3">
 
-                                    <!-- File Type Badge -->
+                                    <?= htmlspecialchars(substr($row['description'], 0, 100)) ?>
+
+                                    <?= strlen($row['description']) > 100 ? '...' : '' ?>
+
+                                </p>
+
+                                <!-- FILE INFO -->
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+
                                     <span class="badge bg-light text-dark border">
-                                        <i class="bi bi-file-earmark"></i>
+
                                         <?= strtoupper($row['file_type']) ?>
+
                                     </span>
 
-                                    <!-- File Size -->
                                     <small class="text-muted">
-                                        <?= round($row['file_size'] / 1024, 2) ?> KB
+
+                                        <?= round($row['file_size'] / 1024, 2) ?>
+                                        KB
+
                                     </small>
 
                                 </div>
 
                                 <!-- VISIBILITY -->
                                 <div class="mb-3">
+
                                     <?php if ($row['visibility'] === 'public'): ?>
-                                        <span class="badge bg-success">Public</span>
+
+                                        <span class="badge bg-success">
+                                            Public
+                                        </span>
+
                                     <?php elseif ($row['visibility'] === 'institution'): ?>
-                                        <span class="badge bg-primary">Institution</span>
+
+                                        <span class="badge bg-primary">
+                                            Institution
+                                        </span>
+
                                     <?php else: ?>
-                                        <span class="badge bg-secondary">Private</span>
+
+                                        <span class="badge bg-secondary">
+                                            Private
+                                        </span>
+
                                     <?php endif; ?>
+
                                 </div>
 
                                 <!-- ACTIONS -->
-                                <div class="mt-auto d-flex gap-2 flex-wrap">
+                                <div class="mt-auto">
 
-                                    <a href="view_file.php?id=<?= $row['id'] ?>"
-                                        class="btn btn-outline-primary btn-sm w-50">
-                                        <i class="bi bi-eye"></i> View
-                                    </a>
+                                    <div class="d-flex gap-2 flex-wrap">
 
-                                    <a href="download.php?id=<?= $row['id'] ?>"
-                                        class="btn btn-success btn-sm w-50">
-                                        <i class="bi bi-download"></i> Download
-                                    </a>
+                                        <!-- VIEW -->
+                                        <a
+                                            href="view_file.php?id=<?= $row['id'] ?>"
+                                            class="btn btn-outline-primary btn-sm action-btn">
 
-                                    <button
-                                        class="btn btn-sm <?= $isSaved ? 'btn-success' : 'btn-outline-secondary'; ?> save-btn w-25"
-                                        data-id="<?= $row['id']; ?>">
-                                        <i class="bi <?= $isSaved ? 'bi-bookmark-check-fill' : 'bi-bookmark-plus-fill'; ?>"></i>
-                                        <?= $isSaved ? 'Saved' : 'Save'; ?>
-                                    </button>
+                                            <i class="bi bi-eye"></i>
+
+                                        </a>
+
+                                        <!-- DOWNLOAD -->
+                                        <a
+                                            href="download.php?id=<?= $row['id'] ?>"
+                                            class="btn btn-success btn-sm action-btn">
+
+                                            <i class="bi bi-download"></i>
+
+                                        </a>
+
+                                        <!-- SAVE -->
+                                        <button
+                                            class="btn btn-sm <?= $isSaved ? 'btn-success' : 'btn-outline-secondary'; ?> save-btn action-btn"
+                                            data-id="<?= $row['id']; ?>">
+
+                                            <i class="bi <?= $isSaved ? 'bi-bookmark-check-fill' : 'bi-bookmark-plus-fill'; ?>"></i>
+
+                                        </button>
+
+                                    </div>
 
                                 </div>
 
                             </div>
+
                         </div>
 
                     <?php endwhile; ?>
@@ -233,38 +429,62 @@ $result = $stmt->get_result();
             <?php endif; ?>
 
         </div>
+
     </div>
-<script>
-    document.querySelectorAll('.save-btn').forEach(button => {
-        button.addEventListener('click', function() {
 
-            let btn = this;
-            let uploadId = btn.getAttribute('data-id');
+    <script>
+        document.querySelectorAll('.save-btn').forEach(button => {
 
-            fetch('toggle_save.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'upload_id=' + uploadId
-                })
-                .then(res => res.text())
-                .then(data => {
+            button.addEventListener('click', function() {
 
-                    if (data === "saved") {
-                        btn.classList.remove('btn-outline-secondary');
-                        btn.classList.add('btn-success');
-                        btn.innerHTML = '<i class="bi bi-bookmark-check-fill"></i> Saved';
-                    } else {
-                        btn.classList.remove('btn-success');
-                        btn.classList.add('btn-outline-secondary');
-                        btn.innerHTML = '<i class="bi bi-bookmark-plus-fill"></i> Save';
-                    }
+                let btn = this;
+                let uploadId = btn.dataset.id;
 
-                });
+                btn.disabled = true;
+
+                fetch('toggle_save.php', {
+
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+
+                        body: 'upload_id=' + uploadId
+
+                    })
+
+                    .then(res => res.text())
+
+                    .then(data => {
+
+                        if (data.trim() === "saved") {
+
+                            btn.className = "btn btn-success btn-sm save-btn";
+
+                            btn.innerHTML =
+                                '<i class="bi bi-bookmark-check-fill"></i> Saved';
+
+                        } else {
+
+                            btn.className =
+                                "btn btn-outline-secondary btn-sm save-btn";
+
+                            btn.innerHTML =
+                                '<i class="bi bi-bookmark-plus-fill"></i> Save';
+                        }
+
+                    })
+
+                    .finally(() => {
+                        btn.disabled = false;
+                    });
+
+            });
+
         });
-    });
-</script>
+    </script>
+
 </body>
 
 </html>

@@ -9,6 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 $role = $_SESSION['role'] ?? 'student';
+$name = $_SESSION['name'] ?? 'User';
 
 $themeClass = ($role === 'staff')
     ? 'theme-staff'
@@ -17,11 +18,35 @@ $themeClass = ($role === 'staff')
 $activePage = 'recent';
 
 /*
-    FETCH RECENTS
+|--------------------------------------------------------------------------
+| FILE ICON HELPER
+|--------------------------------------------------------------------------
+*/
+function getFileIcon($type)
+{
+    return match (strtolower($type)) {
+        'pdf' => '📕',
+        'doc', 'docx' => '📘',
+        'ppt', 'pptx' => '📊',
+        'xls', 'xlsx' => '📗',
+        'jpg', 'jpeg', 'png', 'webp' => '🖼️',
+        'zip', 'rar', '7z' => '🗜️',
+        'mp4' => '🎬',
+        'mp3', 'wav' => '🎵',
+        'txt' => '📄',
+        default => '📁'
+    };
+}
+
+/*
+|--------------------------------------------------------------------------
+| FETCH RECENTS
+|--------------------------------------------------------------------------
 */
 $stmt = $conn->prepare("
-    SELECT uploads.*,
-           recent_views.viewed_at
+    SELECT 
+        uploads.*,
+        recent_views.viewed_at
 
     FROM recent_views
 
@@ -43,6 +68,7 @@ $result = $stmt->get_result();
 <html>
 
 <head>
+
     <title>Recent Activity</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -50,6 +76,7 @@ $result = $stmt->get_result();
     <link rel="stylesheet" href="../assests/style.css">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 </head>
 
 <body class="<?= $themeClass; ?>">
@@ -60,23 +87,57 @@ $result = $stmt->get_result();
 
     <div class="main-content flex-grow-1 p-4">
 
-        <div class="mb-4">
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-center page-header">
 
-            <h4>
-                <i class="bi bi-clock-history"></i>
-                Recent Activity
-            </h4>
+            <div>
 
-            <small class="text-muted">
-                Files you've recently viewed
-            </small>
+                <h4 class="mb-1">
+
+                    <i class="bi bi-clock-history"></i>
+                    Recent Activity
+
+                </h4>
+
+                <small class="text-muted">
+                    Files you've recently viewed
+                </small>
+
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+
+                <strong>
+                    <?= htmlspecialchars($name) ?>
+                </strong>
+
+                <img
+                    src="https://via.placeholder.com/40"
+                    class="rounded-circle dashboard-avatar"
+                    width="40"
+                    height="40">
+
+            </div>
 
         </div>
 
+        <!-- EMPTY STATE -->
         <?php if ($result->num_rows === 0): ?>
 
-            <div class="alert alert-info">
-                No recent activity yet.
+            <div class="empty-state">
+
+                <div class="empty-state-icon">
+                    🚀
+                </div>
+
+                <h5>
+                    No Recent Activity
+                </h5>
+
+                <p>
+                    Files you open will appear here.
+                </p>
+
             </div>
 
         <?php else: ?>
@@ -91,51 +152,89 @@ $result = $stmt->get_result();
                 $date = date('Y-m-d', strtotime($row['viewed_at']));
                 ?>
 
+                <!-- DATE HEADERS -->
                 <?php if ($date !== $lastDate): ?>
 
                     <?php
+
                     if ($date == date('Y-m-d')) {
+
                         $heading = "Today";
+
                     } elseif ($date == date('Y-m-d', strtotime('-1 day'))) {
+
                         $heading = "Yesterday";
+
                     } else {
+
                         $heading = date('F j, Y', strtotime($date));
                     }
 
                     $lastDate = $date;
                     ?>
 
-                    <h5 class="mt-4 mb-3">
+                    <h5 class="mt-4 mb-3 fw-bold">
+
                         <?= $heading ?>
+
                     </h5>
 
                 <?php endif; ?>
 
+                <!-- CARD -->
                 <div class="card border-0 shadow-sm p-3 mb-3 file-card">
 
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-                        <div>
+                        <!-- LEFT -->
+                        <div class="d-flex align-items-center">
 
-                            <h6 class="mb-1">
-                                <?= htmlspecialchars($row['title']) ?>
-                            </h6>
+                            <!-- ICON -->
+                            <div class="file-icon">
 
-                            <small class="text-muted">
-                                <?= strtoupper($row['file_type']) ?>
-                            </small>
+                                <?= getFileIcon($row['file_type']) ?>
+
+                            </div>
+
+                            <!-- FILE INFO -->
+                            <div>
+
+                                <div class="file-title">
+
+                                    <?= htmlspecialchars($row['title']) ?>
+
+                                </div>
+
+                                <div class="meta-text">
+
+                                    <?= strtoupper($row['file_type']) ?>
+
+                                    •
+
+                                    <?= round($row['file_size'] / 1024, 2) ?> KB
+
+                                </div>
+
+                            </div>
 
                         </div>
 
+                        <!-- RIGHT -->
                         <div class="text-end">
 
-                            <small class="text-muted d-block">
+                            <div class="activity-time mb-2">
+
+                                <i class="bi bi-clock"></i>
+
                                 <?= date('g:i A', strtotime($row['viewed_at'])) ?>
-                            </small>
 
-                            <a href="view_file.php?id=<?= $row['id'] ?>"
-                               class="btn btn-sm btn-outline-primary mt-1">
+                            </div>
 
+                            <a
+                                href="view_file.php?id=<?= $row['id'] ?>"
+                                class="btn btn-outline-primary btn-sm">
+
+                                <i class="bi bi-arrow-repeat"></i>
                                 Open Again
 
                             </a>

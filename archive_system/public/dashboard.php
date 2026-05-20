@@ -27,7 +27,7 @@ $userData = $res->fetch_assoc();
 
 $profile_image = !empty($userData['profile_image'])
     ? '../uploads/profiles/' . $userData['profile_image']
-    : '../assets/images/default-avatar.png';
+    : '../assests/images/default-avatar.png';
 
 /* -----------------------
    STUDENT STATS
@@ -135,6 +135,7 @@ $recentUploads = $recentUploadsStmt->get_result();
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Dashboard</title>
 
@@ -145,197 +146,198 @@ $recentUploads = $recentUploadsStmt->get_result();
 
 <body class="<?= $themeClass; ?>">
 
-<div class="d-flex">
+    <div class="d-flex">
 
-    <?php include "../includes/sidebar.php"; ?>
+        <?php include "../includes/sidebar.php"; ?>
 
-    <div class="main-content flex-grow-1 p-4">
+        <div class="main-content flex-grow-1 p-4">
 
-        <!-- TOP BAR -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
+            <!-- TOP BAR -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
 
-            <div></div>
+                <div></div>
 
-            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-3">
 
-                <strong><?= htmlspecialchars($name); ?></strong>
+                    <strong><?= htmlspecialchars($name); ?></strong>
 
-                <!-- PROFILE SHORTCUT -->
-                <a href="settings.php" title="Profile Settings">
-                    <img src="<?= $profile_image ?>"
-                         class="dashboard-avatar rounded-circle mb-4"
-                         width="120"
-                         height="120"
-                         alt="Profile">
-                </a>
+                    <!-- PROFILE SHORTCUT -->
+                    <a href="settings.php" title="Profile Settings">
+                        <img src="<?= $profile_image ?>"
+                            class="dashboard-avatar rounded-circle mb-1"
+                            width="120"
+                            height="120"
+                            alt="Profile">
+                    </a>
 
-            </div>
-
-        </div>
-
-        <!-- WELCOME -->
-        <div class="d-flex justify-content-between align-items-center">
-
-            <div>
-                <h4>Welcome back, <?= htmlspecialchars($name); ?> 👋</h4>
-                <p class="text-muted">Find, learn and share academic resources.</p>
-            </div>
-
-            <button class="btn btn-primary" onclick="openModal()">
-                + Upload Material
-            </button>
-
-        </div>
-
-        <!-- STATS -->
-        <div class="row mt-4">
-
-            <?php foreach ($stats as $stat): ?>
-                <div class="col-md-4">
-                    <div class="card stat-card p-3 shadow-sm border-0">
-                        <h6><?= $stat['label']; ?></h6>
-                        <h3><?= $stat['value']; ?></h3>
-                    </div>
                 </div>
-            <?php endforeach; ?>
 
-        </div>
+            </div>
 
-        <!-- RECENT SECTION -->
-        <div class="row mt-4">
+            <!-- WELCOME -->
+            <div class="d-flex justify-content-between align-items-center">
 
-            <!-- RECENTLY VIEWED -->
-            <div class="col-md-6">
-                <div class="card p-3 shadow-sm border-0">
+                <div>
+                    <h4>Welcome back, <?= htmlspecialchars($name); ?> 👋</h4>
+                    <p class="text-muted">Find, learn and share academic resources.</p>
+                </div>
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="mb-0">
-                            <i class="bi bi-clock-history"></i>
-                            Recently Viewed
-                        </h6>
+                <button class="btn btn-primary" onclick="openModal()">
+                    + Upload Material
+                </button>
+
+            </div>
+
+            <!-- STATS -->
+            <div class="row mt-4">
+
+                <?php foreach ($stats as $stat): ?>
+                    <div class="col-md-4">
+                        <div class="card stat-card p-3 shadow-sm border-0">
+                            <h6><?= $stat['label']; ?></h6>
+                            <h3><?= $stat['value']; ?></h3>
+                        </div>
                     </div>
+                <?php endforeach; ?>
 
-                    <ul class="list-group list-group-flush">
+            </div>
 
-                        <?php if ($recentFiles->num_rows === 0): ?>
-                            <li class="list-group-item text-muted">
-                                No recent views yet
-                            </li>
-                        <?php endif; ?>
+            <!-- RECENT SECTION -->
+            <div class="row mt-4">
 
-                        <?php while ($row = $recentFiles->fetch_assoc()): ?>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <!-- RECENTLY VIEWED -->
+                <div class="col-md-6">
+                    <div class="card p-3 shadow-sm border-0">
 
-                                <div>
-                                    <div class="fw-semibold">
-                                        <?= htmlspecialchars($row['title']) ?>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">
+                                <i class="bi bi-clock-history"></i>
+                                Recently Viewed
+                            </h6>
+                        </div>
+
+                        <ul class="list-group list-group-flush">
+
+                            <?php if ($recentFiles->num_rows === 0): ?>
+                                <li class="list-group-item text-muted">
+                                    No recent views yet
+                                </li>
+                            <?php endif; ?>
+
+                            <?php while ($row = $recentFiles->fetch_assoc()): ?>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                                    <div>
+                                        <div class="fw-semibold">
+                                            <?= htmlspecialchars($row['title']) ?>
+                                        </div>
+                                        <small class="text-muted">
+                                            <?= strtoupper($row['file_type']) ?>
+                                        </small>
                                     </div>
+
                                     <small class="text-muted">
-                                        <?= strtoupper($row['file_type']) ?>
+                                        <?= date("M j, H:i", strtotime($row['viewed_at'])) ?>
                                     </small>
-                                </div>
 
-                                <small class="text-muted">
-                                    <?= date("M j, H:i", strtotime($row['viewed_at'])) ?>
-                                </small>
+                                </li>
+                            <?php endwhile; ?>
 
-                            </li>
-                        <?php endwhile; ?>
+                        </ul>
 
-                    </ul>
-
-                </div>
-            </div>
-
-            <!-- RECENTLY UPLOADED -->
-            <div class="col-md-6">
-                <div class="card p-3 shadow-sm border-0">
-
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="mb-0">
-                            <i class="bi bi-cloud-upload"></i>
-                            Recently Uploaded
-                        </h6>
                     </div>
-
-                    <ul class="list-group list-group-flush">
-
-                        <?php if ($recentUploads->num_rows === 0): ?>
-                            <li class="list-group-item text-muted">
-                                No uploads yet
-                            </li>
-                        <?php endif; ?>
-
-                        <?php while ($up = $recentUploads->fetch_assoc()): ?>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-
-                                <div>
-                                    <div class="fw-semibold">
-                                        <?= htmlspecialchars($up['title']) ?>
-                                    </div>
-                                    <small class="text-muted">
-                                        <?= htmlspecialchars($up['uploader_name']) ?>
-                                    </small>
-                                </div>
-
-                                <small class="text-muted">
-                                    <?= date("M j, H:i", strtotime($up['created_at'])) ?>
-                                </small>
-
-                            </li>
-                        <?php endwhile; ?>
-
-                    </ul>
-
                 </div>
+
+                <!-- RECENTLY UPLOADED -->
+                <div class="col-md-6">
+                    <div class="card p-3 shadow-sm border-0">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">
+                                <i class="bi bi-cloud-upload"></i>
+                                Recently Uploaded
+                            </h6>
+                        </div>
+
+                        <ul class="list-group list-group-flush">
+
+                            <?php if ($recentUploads->num_rows === 0): ?>
+                                <li class="list-group-item text-muted">
+                                    No uploads yet
+                                </li>
+                            <?php endif; ?>
+
+                            <?php while ($up = $recentUploads->fetch_assoc()): ?>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                                    <div>
+                                        <div class="fw-semibold">
+                                            <?= htmlspecialchars($up['title']) ?>
+                                        </div>
+                                        <small class="text-muted">
+                                            <?= htmlspecialchars($up['uploader_name']) ?>
+                                        </small>
+                                    </div>
+
+                                    <small class="text-muted">
+                                        <?= date("M j, H:i", strtotime($up['created_at'])) ?>
+                                    </small>
+
+                                </li>
+                            <?php endwhile; ?>
+
+                        </ul>
+
+                    </div>
+                </div>
+
             </div>
 
         </div>
-
     </div>
-</div>
 
-<!-- MODAL -->
-<div id="uploadModal" class="custom-modal" style="display:none;">
-    <div class="custom-modal-content p-4">
+    <!-- MODAL -->
+    <div id="uploadModal" class="custom-modal" style="display:none;">
+        <div class="custom-modal-content p-4">
 
-        <div class="d-flex justify-content-between mb-3">
-            <h5><i class="bi bi-cloud-upload-fill"></i> Upload Material</h5>
-            <button class="btn btn-sm btn-outline-danger" onclick="closeModal()">✕</button>
+            <div class="d-flex justify-content-between mb-3">
+                <h5><i class="bi bi-cloud-upload-fill"></i> Upload Material</h5>
+                <button class="btn btn-sm btn-outline-danger" onclick="closeModal()">✕</button>
+            </div>
+
+            <form action="upload_handler.php" method="POST" enctype="multipart/form-data">
+
+                <input type="text" name="title" class="form-control mb-2" placeholder="Title" required>
+                <textarea name="description" class="form-control mb-2" placeholder="Description"></textarea>
+                <input type="file" name="file" class="form-control mb-2" required>
+
+                <select name="visibility" class="form-control mb-3">
+                    <option value="private">Private</option>
+                    <option value="institution">Institution</option>
+                    <option value="public">Public</option>
+                </select>
+
+                <button class="btn btn-success w-100">Upload</button>
+            </form>
+
         </div>
-
-        <form action="upload_handler.php" method="POST" enctype="multipart/form-data">
-
-            <input type="text" name="title" class="form-control mb-2" placeholder="Title" required>
-            <textarea name="description" class="form-control mb-2" placeholder="Description"></textarea>
-            <input type="file" name="file" class="form-control mb-2" required>
-
-            <select name="visibility" class="form-control mb-3">
-                <option value="private">Private</option>
-                <option value="institution">Institution</option>
-                <option value="public">Public</option>
-            </select>
-
-            <button class="btn btn-success w-100">Upload</button>
-        </form>
-
     </div>
-</div>
 
-<script>
-function openModal() {
-    document.getElementById("uploadModal").style.display = "flex";
-}
+    <script>
+        function openModal() {
+            document.getElementById("uploadModal").style.display = "flex";
+        }
 
-function closeModal() {
-    document.getElementById("uploadModal").style.display = "none";
-}
+        function closeModal() {
+            document.getElementById("uploadModal").style.display = "none";
+        }
 
-window.onclick = function(e) {
-    let modal = document.getElementById("uploadModal");
-    if (e.target === modal) modal.style.display = "none";
-}
-</script>
+        window.onclick = function(e) {
+            let modal = document.getElementById("uploadModal");
+            if (e.target === modal) modal.style.display = "none";
+        }
+    </script>
 
 </body>
+
 </html>

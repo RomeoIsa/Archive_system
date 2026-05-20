@@ -6,8 +6,9 @@ if (!isset($_SESSION)) {
 $role = $_SESSION['role'] ?? 'student';
 $sidebarClass = ($role === 'staff') ? 'sidebar-staff' : 'sidebar-student';
 ?>
+
 <head>
-     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <div class="sidebar <?php echo $sidebarClass; ?> p-3">
     <div>
@@ -17,59 +18,60 @@ $sidebarClass = ($role === 'staff') ? 'sidebar-staff' : 'sidebar-student';
 
     <ul class="nav flex-column mt-4 flex-grow-1">
 
-    <!-- BASE MENU (EVERYONE) -->
-    <li>
-        <a href="dashboard.php" class="nav-link text-light <?php echo ($activePage == 'dashboard') ? 'active' : ''; ?>">
-            Dashboard
-        </a>
-    </li>
-
-    <li>
-        <a href="library.php" class="nav-link text-light <?php echo ($activePage == 'library') ? 'active' : ''; ?>">
-            Browse Materials
-        </a>
-    </li>
-
-    <li>
-        <a href="files.php" class="nav-link text-light <?php echo ($activePage == 'files') ? 'active' : ''; ?>">
-            My Uploads
-        </a>
-    </li>
-
-    <!-- STAFF ONLY MENU -->
-    <?php if ($role === 'staff'): ?>
-
+        <!-- BASE MENU (EVERYONE) -->
         <li>
-            <a href="#" class="nav-link text-light <?php echo ($activePage == 'earnings') ? 'active' : ''; ?>">
-                Earnings
+            <a href="dashboard.php" class="nav-link text-light <?php echo ($activePage == 'dashboard') ? 'active' : ''; ?>">
+                Dashboard
             </a>
         </li>
 
         <li>
-            <a href="#" class="nav-link text-light <?php echo ($activePage == 'downloads') ? 'active' : ''; ?>">
-                Downloads & Analytics
+            <a href="library.php" class="nav-link text-light <?php echo ($activePage == 'library') ? 'active' : ''; ?>">
+                Browse Materials
             </a>
         </li>
 
-    <?php endif; ?>
+        <li>
+            <a href="files.php" class="nav-link text-light <?php echo ($activePage == 'files') ? 'active' : ''; ?>">
+                My Uploads
+            </a>
+        </li>
 
-    <!-- STATIC ITEMS (UNCHANGED) -->
- <li>
-        <a href="saved.php" class="nav-link text-light <?php echo ($activePage == 'saved') ? 'active' : ''; ?>">
-            Favorites
-        </a>
-    </li>    
-    <li>
-        <a href="recent_activity.php" class="nav-link text-light <?php echo ($activePage == 'recent') ? 'active' : ''; ?>">
-            Recent Activity
-        </a>
-    </li>
- <li>
-        <a href="settings.php" class="nav-link text-light <?php echo ($activePage == 'settings') ? 'active' : ''; ?>">
-            Profile Settings
-        </a>
-    </li>
-</ul>
+        <!-- STAFF ONLY MENU -->
+        <?php if ($role === 'staff'): ?>
+
+            <li>
+                <a href="#" class="nav-link text-light <?php echo ($activePage == 'earnings') ? 'active' : ''; ?>">
+                    Earnings
+                </a>
+            </li>
+
+            <li>
+                <a href="#" class="nav-link text-light <?php echo ($activePage == 'downloads') ? 'active' : ''; ?>">
+                    Downloads & Analytics
+                </a>
+            </li>
+
+        <?php endif; ?>
+
+        <!-- STATIC ITEMS (UNCHANGED) -->
+        <li>
+            <a href="saved.php" class="nav-link text-light <?php echo ($activePage == 'saved') ? 'active' : ''; ?>">
+                Favorites
+            </a>
+        </li>
+        <li>
+            <a href="recent_activity.php" class="nav-link text-light <?php echo ($activePage == 'recent') ? 'active' : ''; ?>">
+                Recent Activity
+            </a>
+        </li>
+        <li>
+            <a href="settings.php" class="nav-link text-light <?php echo ($activePage == 'settings') ? 'active' : ''; ?>">
+                Profile Settings
+            </a>
+        </li>
+        
+    </ul>
 
     <a href="logout.php" class="btn btn-danger w-100 mt-auto">Logout</a>
 </div>

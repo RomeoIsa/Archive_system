@@ -1,20 +1,32 @@
-# 📋 University Data Archive System — Master Checklist (Updated Roadmap)
+# 📋 University Data Archive System — Project Status & Master Checklist
+
+> Current Project Phase: **Core Functional MVP (Minimum Viable Product)**  
+> Estimated Completion Status: **≈ 70–78% Functional**
+
+Your system is already beyond the prototype stage and is approaching beta-level usability.
 
 ---
 
 # 🧱 1. Core System (Foundation)
+
+## Status: ✅ Mostly Functional
 
 - [x] Database created  
 - [x] Users table  
 - [x] Institutions table  
 - [x] Uploads table  
 - [ ] Courses table *(optional next phase)*  
-- [ ] Departments table *(future scalability)*  
+- [x] Departments table *(future scalability)*  
 - [ ] Levels table *(100L / 200L / 300L etc.)*  
+
+### Functional Readiness
+**≈ 85% Complete**
 
 ---
 
 # 🔐 2. Authentication System
+
+## Status: ✅ Functional
 
 - [x] User registration (multi-step)  
 - [x] Login system  
@@ -29,42 +41,71 @@
 - [ ] Password reset system  
 - [ ] Login activity tracking  
 
+### Functional Readiness
+**≈ 80% Complete**
+
 ---
 
 # 👤 3. User System
+
+## Status: ✅ Functional
 
 - [x] Roles (student/staff)  
 - [x] Institution assignment  
 - [x] User session data (name, role, institution)  
 
+### Functional Readiness
+**≈ 85% Complete**
+
 ---
 
-## ⚙️ Profile Settings System
+# ⚙️ 4. Profile Settings System
 
-### Section 1 — Personal Information
-- [ ] Profile settings page  
-- [ ] Upload/change profile photo  
-- [ ] Edit display name  
-- [ ] Add/edit matric number  
-- [ ] Add/edit department  
+## Status: 🟡 Partially Functional
+
+## Personal Information
+- [x] Profile settings page  
+- [x] Upload/change profile photo  
+- [x] Edit display name  
+- [x] Add/edit matric number  
+- [x] Add/edit department  
 - [ ] Add/edit student level  
 - [ ] Add/edit bio *(optional)*  
 
-### Section 2 — Account Preferences
+---
+
+## Account Preferences
 - [ ] Theme system (Light/Dark mode)  
 - [ ] Appearance customization  
 - [ ] Language settings  
 - [ ] Notification preferences *(future)*  
 
-### Section 3 — Account Management
+---
+
+## Account Management
 - [ ] Save changes button  
-- [ ] Delete account option  
-- [ ] Account deletion confirmation modal  
+- [x] Delete account option  
+- [x] Account deletion confirmation modal  
+- [ ] Functional account deletion system  
 - [ ] Logout all devices *(future)*  
 
 ---
 
-# 📤 4. Upload System
+## Additional Profile Features
+- [ ] User statistics section  
+- [ ] Upload count display  
+- [ ] Saved files count display  
+- [ ] Recent activity preview  
+- [ ] Profile completion indicator  
+
+### Functional Readiness
+**≈ 60–65% Complete**
+
+---
+
+# 📤 5. Upload System
+
+## Status: ✅ Functional Core
 
 - [x] File upload system  
 - [x] File validation (type + size)  
@@ -73,321 +114,290 @@
 - [x] Secure filename generation  
 
 ### Improvements
-- [ ] Multiple file upload support *(optional)*  
-- [ ] Folder upload support *(optional advanced feature)*  
+- [ ] Multiple file upload support  
+- [ ] Folder upload support  
 - [ ] Drag-and-drop uploads  
 - [ ] Upload progress bar  
 - [ ] Upload queue system  
 - [ ] File preview before upload  
 - [ ] Chunked uploads for large files  
+- [ ] Expanded upload file type whitelist  
+
+### Functional Readiness
+**≈ 78–82% Complete**
 
 ---
 
-# 📥 5. Download System
+# 📥 6. Download System
+
+## Status: ✅ Functional
 
 - [x] Secure download by ID  
-- [x] Download tracking system (logs user + file)  
+- [x] Download tracking system  
 - [x] Access logging via downloads table  
 
 ### Improvements
-- [ ] Download analytics (most downloaded files)  
+- [ ] Download analytics  
 - [ ] Download trends over time  
 - [ ] Download history per user  
 
----
-
-# ⭐ 6. Saved / Favorites / Bookmark System
-
-## Database
-- [x] Create `saved` table  
-  - `id`  
-  - `user_id`  
-  - `upload_id`  
-  - `created_at`  
-  - Unique constraint (`user_id`, `upload_id`)  
+### Functional Readiness
+**≈ 80% Complete**
 
 ---
 
-## Core Features
-- [x] Save / bookmark file  
-- [x] Unsave / remove bookmark  
+# ⭐ 7. Saved / Favorites System
+
+## Status: ✅ Functional
+
+- [x] Save/bookmark file  
+- [x] Unsave/remove bookmark  
 - [x] Prevent duplicate saves  
-- [x] Check saved state per file  
+- [x] AJAX live toggling  
+- [x] Saved files page  
+- [x] Filtering and searching  
+- [x] Animated interactions  
+
+### Improvements
+- [ ] Empty state UI  
+
+### Functional Readiness
+**≈ 90% Complete**
 
 ---
 
-## UI Features
-- [x] Save button on file cards  
-- [x] Toggle state (Save / Saved)  
-- [x] Live toggle without page reload (AJAX)  
-- [x] Saved icon/button integration in library  
+# 🕒 8. Recent Activity System
 
----
+## Status: ✅ Functional
 
-## Saved Page
-- [x] List all bookmarked files  
-- [x] Remove saved items  
-- [x] Search saved items  
-- [x] Filter by file type  
-- [x] Match full library UI (badges, metadata, polish)  
-- [x] Add saved star indicator  
-- [x] Add animated remove interaction  
-
----
-
-# 🕒 7. Recent Activity System
-
-## Database
-- [x] Create `recent_views` table  
-  - `id`  
-  - `user_id`  
-  - `upload_id`  
-  - `viewed_at`
-
----
-
-## Core Features
 - [x] Track viewed files  
-- [x] Prevent duplicate recent entries (update timestamp instead)  
-- [x] Update latest view timestamp on re-open  
-- [x] View history per user  
+- [x] Prevent duplicate entries  
+- [x] Timestamp updating  
+- [x] Recently viewed dashboard widget  
+- [x] Recently uploaded widget  
+- [x] Full recent activity page  
+- [x] Chronological grouping  
 
-Current behavior already resets/updates the timestamp to the newest date and time whenever a user reopens a file.  
-That means if a file was viewed last week and opened again today, it moves back to the top as “recently viewed.”
+### Improvements
+- [ ] Improve activity page UI  
+- [ ] Timeline-style layout  
+- [ ] File-type activity icons  
+- [ ] Better animations  
+- [ ] Empty state UI  
 
----
-
-## Dashboard Features
-- [x] Recently viewed widget  
-- [x] Limit to 5 latest viewed files  
-- [x] View All button linking to full page  
-- [x] Recently uploaded widget (latest 5 uploads)  
-- [x] Database-driven activity system  
-
----
-
-## Recent Activity Page
-- [x] Full activity page (all viewed files)  
-- [x] Group by date (Today / Yesterday / Previous dates)  
-- [x] Chronological ordering  
-- [x] Open Again button  
-- [x] Clean card-based UI  
-- [x] Date headers for sections  
+### Functional Readiness
+**≈ 85% Complete**
 
 ---
 
-# 📂 8. My Uploads Page
+# 📂 9. My Uploads Page
 
-- [x] Display user uploads  
+## Status: ✅ Functional
+
+- [x] Display uploads  
 - [x] Delete uploads  
 - [x] Edit uploads  
 - [x] Search uploads  
-- [x] Improved UI (badges + layout polish)  
+- [x] Improved UI  
 
 ### Improvements
-- [ ] Bulk delete uploads  
+- [ ] Bulk delete  
 - [ ] Bulk visibility edit  
-- [ ] Upload statistics per file  
+- [ ] Upload statistics  
 - [ ] Recently uploaded highlight  
+
+### Functional Readiness
+**≈ 80% Complete**
 
 ---
 
-# 🌐 9. Library / Browse System
+# 📚 10. Library / Browse System
+
+## Status: ✅ Functional Core
 
 - [x] Global search  
 - [x] File type filtering  
-- [x] Institution-based filtering  
+- [x] Institution filtering  
 - [x] Visibility rules  
-- [x] Saved state detection per file  
+- [x] Saved state detection  
 
 ---
 
-## Academic Filtering System
-
-- [ ] Student level filter (100L / 200L / 300L etc.)  
+## Academic Filtering
+- [ ] Student level filter  
 - [ ] Department filter  
 - [ ] Course code filter  
-- [ ] Semester filter *(future)*  
-- [ ] Faculty filter *(future)*  
-
-### Recommended Logic
-- [ ] Allow users to optionally choose their level during profile setup  
-- [ ] Auto-prioritize files matching their level  
-- [ ] Still allow manual filtering for all levels  
+- [ ] Semester filter  
+- [ ] Faculty filter  
 
 ---
 
 ## Improvements
-- [ ] Advanced filters (size, date range, popularity)  
-- [ ] Most downloaded sorting  
-- [ ] Most saved sorting  
-- [ ] Save count display  
-- [ ] Recently uploaded sorting  
+- [ ] Advanced filters  
+- [ ] Popularity sorting  
 - [ ] Smart search suggestions  
-- [ ] Recommended files section  
+- [ ] Recommended files  
+- [ ] Expanded searchable file support  
+
+### Functional Readiness
+**≈ 75–80% Complete**
 
 ---
 
-# 🎨 10. UI / UX
+# 🎨 11. UI / UX
+
+## Status: 🟡 Good Foundation, Needs Polish
 
 - [x] Bootstrap layout  
 - [x] Responsive design  
 - [x] Improved file cards  
 - [x] Icon-based actions  
-- [x] Clean badge system  
-- [x] Consistent card layout across pages  
-- [x] Dashboard activity panels (2-column layout)  
+- [x] Consistent card layouts  
 
----
-
-## UI Refinement Goals
-
-### General Polish
-- [ ] Refine spacing and typography  
-- [ ] Improve color consistency  
-- [ ] Add smoother hover animations  
-- [ ] Improve sidebar aesthetics  
-- [ ] Better mobile responsiveness  
+### Refinements Needed
+- [ ] Better spacing/typography  
+- [ ] Hover animations  
+- [ ] Sidebar improvements  
 - [ ] Cleaner empty states  
-- [ ] Modern glassmorphism/card effects *(optional)*  
-
-### Feedback & Interactions
-- [ ] Loading states  
 - [ ] Toast notifications  
-- [ ] Save/unsave animation feedback  
-- [ ] Dashboard skeleton loaders  
-- [ ] Smooth page transitions  
+- [ ] Skeleton loaders  
+- [ ] Smooth transitions  
+- [ ] Placeholder/idle pages  
 
-### File Experience
-- [ ] File preview modal  
-- [ ] Better file type icons  
-- [ ] Thumbnail previews for supported files  
-- [ ] PDF inline viewer  
-- [ ] Image gallery viewer  
+### Functional Readiness
+**≈ 68–72% Complete**
 
 ---
 
-# 🧭 11. Role-Based Navigation
+# 🧭 12. Role-Based Navigation
 
-- [x] Dynamic sidebar base system  
-- [x] Shared navigation for all roles  
-- [x] Recent Activity sidebar link  
+## Status: ✅ Functional
+
+- [x] Dynamic sidebar system  
+- [x] Shared navigation  
 - [x] Active page highlighting  
-
----
-
-## Staff-only Extra Tabs
-- [x] Earnings  
-- [x] Downloads  
-- [x] Analytics  
+- [x] Staff-only tabs  
 
 ### Improvements
-- [ ] Role-specific dashboard widgets  
-- [ ] Admin-only moderation panel *(future)*  
+- [ ] Role-specific widgets  
+- [ ] Placeholder pages  
+- [ ] Admin moderation system  
+
+### Functional Readiness
+**≈ 80% Complete**
 
 ---
 
-# 📊 12. Dashboard System
+# 📊 13. Dashboard System
+
+## Status: 🟡 Functional but Needs Refinement
 
 - [x] Role-based stat cards  
 - [x] Database-driven metrics  
 - [x] Student dashboard stats  
 - [x] Staff dashboard stats  
-- [x] Recently viewed widget (limit 5)  
-- [x] Recently uploaded widget (limit 5)  
-- [x] Fully dynamic activity overview  
+- [x] Recent activity widgets  
 
----
-
-## Improvements
-- [ ] Real-time analytics charts  
-- [ ] Trending uploads widget  
-- [ ] Download trend graphs  
+### Improvements
+- [ ] Fix lecturer stat card logic  
+- [ ] Analytics charts  
+- [ ] Trending uploads  
+- [ ] Download graphs  
 - [ ] Personalized recommendations  
-- [ ] Most active users panel  
-- [ ] Popular departments widget  
+
+### Functional Readiness
+**≈ 72–78% Complete**
 
 ---
 
-# 🛡️ 13. Security
+# 🔒 14. Security
 
-- [x] Prepared statements (partial usage)  
+## Status: 🟡 Basic Security Present
+
+- [x] Prepared statements *(partial)*  
 - [x] File validation  
 - [x] Upload restrictions  
-- [x] Access control for downloads  
-- [x] Access control for file viewing  
-- [x] Recent activity tied to user session  
+- [x] Access control  
 
----
-
-## Improvements
-- [ ] Rate limiting uploads  
-- [ ] Full RBAC permission system  
-- [ ] Audit logs for actions  
+### Missing Important Security Layers
 - [ ] CSRF protection  
-- [ ] Secure MIME verification  
+- [ ] Full MIME validation  
 - [ ] XSS sanitization improvements  
-- [ ] Brute-force login protection  
+- [ ] Brute-force protection  
+- [ ] Rate limiting  
+
+### Functional Readiness
+**≈ 60–65% Complete**
 
 ---
 
-# 📄 14. Expanded File Type Support
+# 📄 15. Expanded File Type Support
 
-## Documents
-- [ ] PDF  
-- [ ] DOC / DOCX  
-- [ ] PPT / PPTX  
-- [ ] XLS / XLSX  
-- [ ] TXT  
-- [ ] RTF  
+## Status: 🟡 Partial
 
-## Development Files
-- [ ] ZIP  
-- [ ] RAR  
-- [ ] 7Z  
-- [ ] JSON  
-- [ ] XML  
-- [ ] CSV  
-- [ ] SQL  
+### Already Partially Working
+- [x] Common documents  
+- [x] Images *(basic)*  
 
-## Media Files
-- [ ] JPG / PNG / WEBP  
-- [ ] MP4  
-- [ ] MP3  
-- [ ] WAV  
-
-## Academic Files
+### Still Expanding
+- [ ] ZIP/RAR/7Z  
+- [ ] Media support  
+- [ ] Code archives  
 - [ ] EPUB  
-- [ ] Research datasets  
 - [ ] Lecture recordings  
-- [ ] Scanned handwritten notes  
-- [ ] Project source code archives  
+- [ ] Dataset support  
+
+### Functional Readiness
+**≈ 55–65% Complete**
 
 ---
 
-# 💡 Strategic Notes
+# 🚀 OVERALL PROJECT STATUS
 
-### Multiple File Uploads
-This can become a very strong feature because students often upload:
-- Entire course materials  
-- Past question packs  
-- Lecture slide folders  
-- Assignment collections  
-- Project resources  
+| Area | Completion |
+|---|---|
+| Core Functionality | 80–85% |
+| User Experience | 70% |
+| Advanced Features | 45–55% |
+| Security Hardening | 60–65% |
+| Production Readiness | 68–75% |
 
-Folder uploads especially become valuable when users upload:
-- Full semester materials  
-- Department archives  
-- Grouped lecture content  
+---
 
-This could significantly increase platform usefulness and retention later on.
+# 🧠 Final Assessment
 
-### Student Level Filtering
-You do not *have* to force level selection during signup.  
+Your system is already:
+- beyond beginner-level,
+- structurally scalable,
+- and approaching real-world deployment quality.
 
-Best approach:
-1. Make level optional in profile settings  
-2. Allow filtering manually in search  
-3. Use the level later for smarter recommendations and personalization  
+The biggest remaining tasks are:
+1. UX polish  
+2. Advanced filters/search  
+3. Security hardening  
+4. Placeholder states  
+5. File support expansion  
+6. Analytics/dashboard refinement  
 
-That gives flexibility without making onboarding annoying.
+---
+
+# 🔥 Immediate Priority Tasks
+
+- [ ] Make delete account fully functional  
+- [ ] Fix lecturer dashboard stat cards  
+- [ ] Add placeholder states for unfinished tabs  
+- [ ] Improve recent activity page design  
+- [ ] Expand supported upload/search file types  
+- [ ] Complete profile settings backend logic  
+
+---
+
+# 🏁 Estimated Project Stage
+
+| Stage | Status |
+|---|---|
+| Prototype | ✅ Complete |
+| Functional MVP | ✅ Complete |
+| Beta Platform | 🟡 Nearly Ready |
+| Production Ready | 🟡 Needs Security + Polish |
+| Enterprise Scale | ❌ Future Phase |

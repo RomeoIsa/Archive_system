@@ -155,14 +155,15 @@
 
 .file-card {
     border: none;
-    border-radius: 12px;
+    border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transition: 0.2s;
+    transition: all 0.2s ease;
+    overflow: hidden;
 }
 
 .file-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.08);
 }
 
 .file-card small {
@@ -171,9 +172,147 @@
 
 .file-card .btn {
     min-width: 80px;
+    border-radius: 10px;
+}
+
+/* =========================
+   FILE ICONS
+========================= */
+
+.file-icon {
+    font-size: 34px;
+    margin-right: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* =========================
+   FILE CONTENT
+========================= */
+
+.file-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+    line-height: 1.3;
+}
+
+.file-description {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.meta-text {
+    font-size: 13px;
+    color: #777;
+}
+
+/* =========================
+   SEARCH + FILTERS
+========================= */
+
+.search-box,
+.filter-select {
+    border-radius: 12px;
+    min-height: 45px;
+    border: 1px solid #e5e7eb;
+}
+
+.search-box:focus,
+.filter-select:focus {
+    box-shadow: none;
+    border-color: var(--primary-light);
+}
+
+/* =========================
+   PAGE HEADERS
+========================= */
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+.page-header h4 {
+    font-weight: 700;
+}
+
+/* =========================
+   EMPTY STATES
+========================= */
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-state-icon {
+    font-size: 60px;
+    opacity: 0.9;
+}
+
+.empty-state h5 {
+    margin-top: 15px;
+    font-weight: 700;
+}
+
+.empty-state p {
+    color: #6b7280;
+    margin-top: 10px;
+}
+
+/* =========================
+   SAVE BUTTON
+========================= */
+
+.save-btn {
+    transition: 0.2s ease;
+}
+
+/* =========================
+   MODERN BADGES
+========================= */
+
+.badge {
+    padding: 7px 10px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+/* =========================
+   RECENT ACTIVITY
+========================= */
+
+.activity-time {
+    font-size: 13px;
+    color: #777;
+}
+
+/* =========================
+   DASHBOARD PANELS
+========================= */
+
+.dashboard-panel {
+    border-radius: 18px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+/* =========================
+   SMOOTH BUTTONS
+========================= */
+
+.btn {
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
 }
 
 /* Upload Button */
+
 #BtnUpload {
     transition: all 0.3s ease;
 }
@@ -211,8 +350,7 @@
 }
 
 /* =========================
-   PROFILE AVATAR (FIXED SYSTEM)
-   THIS IS THE IMPORTANT FIX
+   PROFILE AVATAR
 ========================= */
 
 .profile-image-wrapper {
@@ -221,7 +359,7 @@
     margin: auto;
     position: relative;
     border-radius: 50%;
-    overflow: hidden; /* CRITICAL FIX */
+    overflow: hidden;
     cursor: pointer;
 }
 
@@ -232,10 +370,10 @@
     display: block;
 }
 
-/* Hover overlay */
 .profile-overlay {
     position: absolute;
     inset: 0;
+
     background: rgba(0,0,0,0.55);
     color: white;
 
@@ -286,6 +424,10 @@
     padding: 20px;
 }
 
+/* =========================
+   DASHBOARD AVATAR
+========================= */
+
 .dashboard-avatar {
     width: 38px;
     height: 38px;
@@ -299,4 +441,18 @@
 .dashboard-avatar:hover {
     transform: scale(1.08);
     border-color: #3b82f6;
+}
+
+.action-btn {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 0;
+}
+
+.action-btn i {
+    font-size: 14px;
 }
