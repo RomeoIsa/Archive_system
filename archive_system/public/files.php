@@ -145,7 +145,7 @@ $result = $stmt->get_result();
 
                                     <div class="mt-auto d-flex gap-2">
 
-                                        <a href="view_file.php?id=<?= $row['id'] ?>"
+                                        <a href="view_file_from_saved.php?id=<?= $row['id'] ?>"
                                             class="btn btn-outline-primary btn-sm w-100">
                                             <i class="bi bi-eye-fill"></i>
                                         </a>

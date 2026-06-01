@@ -1,0 +1,558 @@
+# Project code explanation (excluding checklist.md and uploads/*)
+
+This file explains each source file’s code blocks, what each block does, and what it interacts with in other files.
+
+> Scope notes:
+> - Excludes: `public/checklist.md` and everything under `uploads/`.
+> - Includes: PHP/HTML/CSS assets present in the repo.
+> - When a file calls another PHP page via `include`/links/forms/fetch, that interaction is documented.
+
+---
+
+## 1) `config/db.php`
+
+### Code
+```php
+<?php
+$conn = new mysqli("localhost", "root", "", "archive_system");
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>
+```
+
+### What it does
+- Creates a global MySQL connection object `$conn` using `mysqli`.
+- Immediately terminates the request if the DB connection fails.
+
+### Interactions
+- Every PHP page that `require "../config/db.php";` (or similar) depends on `$conn` to run SQL.
+
+---
+
+## 2) `includes/access.php`
+
+### Code
+```php
+<?php
+
+function canViewFile($file, $session_user_id, $session_institution_id) {
+
+    if ($file['user_id'] == $session_user_id) {
+        return true;
+    }
+
+    if ($file['visibility'] === 'public') {
+        return true;
+    }
+
+  
+    if (
+        $file['visibility'] === 'institution' &&
+        $file['institution_id'] == $session_institution_id
+    ) {
+        return true;
+    }
+
+
+    return false;
+}
+```
+
+### What it does
+- Defines `canViewFile(...)` which decides whether the session user can view a given `$file` record.
+- Rules:
+  1. Owner can view (`file.user_id == session_user_id`).
+  2. Public files can view.
+  3. Institution files can view if `file.institution_id == session_institution_id`.
+  4. Otherwise deny.
+
+### Interactions
+- Intended to be used by file-viewing endpoints (e.g., could be used in `public/view_file.php`).
+- In the current codebase snapshot, `public/view_file.php` implements its own access logic and does **not** call `canViewFile`.
+
+---
+
+## 3) `includes/sidebar.php`
+
+### Code
+```php
+<?php
+if (!isset($_SESSION)) {
+    session_start();
+}
+
+$role = $_SESSION['role'] ?? 'student';
+$sidebarClass = ($role === 'staff') ? 'sidebar-staff' : 'sidebar-student';
+?>
+<head>
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<div class="sidebar <?php echo $sidebarClass; ?> p-3">
+    <div>
+        <h4 class="text-light"><i class="bi bi-bar-chart-line-fill"></i> UniArchive</h4>
+        <p class="text-light small"><?php echo ucfirst($role); ?></p>
+    </div>
+
+    <ul class="nav flex-column mt-4 flex-grow-1">
+
+    <!-- BASE MENU (EVERYONE) -->
+    <li>
+        <a href="dashboard.php" class="nav-link text-light <?php echo ($activePage == 'dashboard') ? 'active' : ''; ?>">
+            Dashboard
+        </a>
+    </li>
+
+    <li>
+        <a href="library.php" class="nav-link text-light <?php echo ($activePage == 'library') ? 'active' : ''; ?>">
+            Browse Materials
+        </a>
+    </li>
+
+    <li>
+        <a href="files.php" class="nav-link text-light <?php echo ($activePage == 'files') ? 'active' : ''; ?>">
+            My Uploads
+        </a>
+    </li>
+
+    <!-- STAFF ONLY MENU -->
+    <?php if ($role === 'staff'): ?>
+
+        <li>
+            <a href="#" class="nav-link text-light <?php echo ($activePage == 'earnings') ? 'active' : ''; ?>">
+                Earnings
+            </a>
+        </li>
+
+        <li>
+            <a href="#" class="nav-link text-light <?php echo ($activePage == 'downloads') ? 'active' : ''; ?>">
+                Downloads & Analytics
+            </a>
+        </li>
+
+    <?php endif; ?>
+
+    <!-- STATIC ITEMS (UNCHANGED) -->
+ <li>
+        <a href="saved.php" class="nav-link text-light <?php echo ($activePage == 'saved') ? 'active' : ''; ?>">
+            Favorites
+        </a>
+    </li>    
+    <li>
+        <a href="recent_activity.php" class="nav-link text-light <?php echo ($activePage == 'recent') ? 'active' : ''; ?>">
+            Recent Activity
+        </a>
+    </li>
+    <li><a class="nav-link text-light">Profile Settings</a></li>
+
+</ul>
+
+    <a href="logout.php" class="btn btn-danger w-100 mt-auto">Logout</a>
+</div>
+```
+
+### What it does
+- Starts a session if `$_SESSION` isn’t set.
+- Reads `$_SESSION['role']` and selects a CSS class for staff vs student.
+- Renders the navigation menu.
+- Uses `$activePage` (provided by each page) to highlight the current page.
+- Conditionally shows staff-only menu items when `$role === 'staff'`.
+
+### Interactions
+- Included by many pages using: `include "../includes/sidebar.php";`
+- Depends on `$activePage` variable being set by the including page.
+- Links route to:
+  - `dashboard.php`, `library.php`, `files.php`, `saved.php`, `recent_activity.php`, `logout.php`
+
+---
+
+## 4) `assests/style.css`
+
+### What it does
+- Styling for the UI (not PHP logic).
+
+### Interactions
+- Referenced by pages via `../assests/style.css` (note the folder name `assests` not `assets`).
+
+---
+
+## 5) `public/dashboard.php`
+
+### Code blocks
+
+#### Session + DB bootstrap
+```php
+<?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+require "../config/db.php";
+```
+- Ensures authentication.
+- Loads `$conn`.
+
+#### Read session fields + theme + active page
+```php
+$user_id = $_SESSION['user_id'];
+$role = $_SESSION['role'] ?? 'student';
+$name = $_SESSION['name'] ?? 'User';
+$themeClass = ($role === 'staff') ? 'theme-staff' : 'theme-student';
+
+$activePage = 'dashboard';
+```
+- Sets display theme.
+- Sets `$activePage` for `includes/sidebar.php` highlighting.
+
+#### Student stats query block
+```php
+if ($role === 'student') {
+
+    $uploads = $conn->query(
+        "SELECT COUNT(*) as total FROM uploads WHERE user_id = $user_id"
+    )->fetch_assoc()['total'] ?? 0;
+
+    // downloads and saved counts are guarded by SHOW TABLES checks
+    ...
+
+    $stats = [ ... ];
+}
+```
+- Computes counts scoped to the student.
+- Uses `SHOW TABLES LIKE` before querying `downloads` and `saved` to avoid missing-table errors.
+
+#### Staff stats query block
+```php
+if ($role === 'staff') {
+
+    $uploads = $conn->query("SELECT COUNT(*) as total FROM uploads")->fetch_assoc()['total'] ?? 0;
+
+    // downloads table is optional check
+    ...
+
+    $users = $conn->query("SELECT COUNT(*) as total FROM users")->fetch_assoc()['total'] ?? 0;
+
+    $stats = [ ... ];
+}
+```
+- Computes overall counts for staff.
+
+#### Recently viewed block
+```php
+$recentStmt = $conn->prepare(
+    "SELECT uploads.id, uploads.title, uploads.file_type, recent_views.viewed_at
+     FROM recent_views
+     JOIN uploads ON recent_views.upload_id = uploads.id
+     WHERE recent_views.user_id = ?
+     ORDER BY recent_views.viewed_at DESC
+     LIMIT 5"
+);
+$recentStmt->bind_param("i", $user_id);
+$recentStmt->execute();
+$recentFiles = $recentStmt->get_result();
+```
+- Reads `recent_views` join `uploads` and limits to 5.
+
+#### Recently uploaded block
+```php
+$recentUploadsStmt = $conn->prepare(
+    "SELECT uploads.id, uploads.title, uploads.file_type, uploads.created_at,
+            users.name AS uploader_name
+     FROM uploads
+     JOIN users ON uploads.user_id = users.id
+     ORDER BY uploads.created_at DESC
+     LIMIT 5"
+);
+$recentUploadsStmt->execute();
+$recentUploads = $recentUploadsStmt->get_result();
+```
+- Reads latest uploads.
+
+#### HTML includes and interactions
+```php
+<?php include "../includes/sidebar.php"; ?>
+```
+- Sidebar uses `$activePage`.
+
+#### Upload modal interaction
+```html
+<form action="upload_handler.php" method="POST" enctype="multipart/form-data"> ...
+```
+- On submit, posts to `public/upload_handler.php`.
+
+### Interactions with other files
+- Includes `../includes/sidebar.php`.
+- Uses `upload_handler.php` form submission.
+- Relies on DB tables: `uploads`, `recent_views`, `users`, optionally `downloads` and `saved`.
+
+---
+
+## 6) `public/files.php`
+
+### Session + DB
+- Same pattern: starts session, checks `$_SESSION['user_id']`, requires `../config/db.php`.
+
+### Key variables
+```php
+$activePage = 'files';
+```
+- Used by `sidebar.php` highlight.
+
+### Search block
+```php
+$search = isset($_GET['search']) ? trim($_GET['search']) : "";
+...
+$stmt = $conn->prepare("SELECT * FROM uploads WHERE user_id = ? AND title LIKE ? ORDER BY created_at DESC");
+```
+- If `search` is present, filters user uploads by `title LIKE`.
+
+### Rendered action links
+For each upload row, generates links to:
+- `view_file.php?id=...`
+- `download.php?id=...`
+- `edit_file.php?id=...`
+- `delete_file.php?id=...` (with JS confirm)
+
+### Interactions
+- Includes `../includes/sidebar.php`.
+- Depends on DB table `uploads`.
+- `view_file.php` and `download.php` enforce access control.
+
+---
+
+## 7) `public/view_file.php`
+
+### Bootstrap + auth
+- Requires login; loads `$conn`.
+
+### Fetch by ID
+```php
+$file_id = intval($_GET['id']);
+$stmt = $conn->prepare("SELECT * FROM uploads WHERE id = ?");
+$stmt->bind_param("i", $file_id);
+```
+- Fetches file metadata.
+
+### Access control block
+```php
+function canAccessFile($file, $user_id, $institution_id) {
+    if ($file['visibility'] === 'private') return $user_id && $file['user_id'] == $user_id;
+    if ($file['visibility'] === 'institution') return $institution_id && $file['institution_id'] == $institution_id;
+    if ($file['visibility'] === 'public') return true;
+    return false;
+}
+```
+- Grants/denies based on visibility and `institution_id` in session.
+
+### Recent view tracking block
+```php
+SELECT id FROM recent_views WHERE user_id = ? AND upload_id = ?
+```
+- If exists: updates `viewed_at = NOW()`.
+- Else: inserts into `recent_views`.
+
+### Preview rendering
+- Builds `$filePath = "../uploads/" . $file['file_name'];`
+- If `file_type` is image or txt-like: shows `<img>`.
+- If `pdf`: shows `<iframe>`.
+- Else: shows a “Preview not available” message and renders a download link.
+
+### Interactions
+- Includes logic that conceptually overlaps with `includes/access.php` but does not call it.
+- Writes to DB table `recent_views`.
+- Provides download route to `download.php?id=...`.
+
+---
+
+## 8) `public/download.php`
+
+### Auth + fetch file
+```php
+$stmt = $conn->prepare("SELECT * FROM uploads WHERE id = ?");
+```
+
+### Access control block
+- Implements its own `$allowed` logic:
+  - owner OR visibility public OR visibility institution with matching institution.
+
+### Logs downloads
+```php
+INSERT INTO downloads (user_id, upload_id, institution_id) VALUES (?, ?, ?)
+```
+- Records download events.
+
+### File transfer block
+- Builds `$filePath = "../uploads/" . $file['file_name'];`
+- Checks file exists.
+- Sets headers:
+  - `Content-Type: application/octet-stream`
+  - `Content-Disposition: attachment; filename=...`
+- Uses `readfile($filePath)` then `exit()`.
+
+### Interactions
+- Depends on `uploads` table and `downloads` table.
+- Serves physical files from `../uploads/`.
+
+---
+
+## 9) `public/delete_file.php`
+
+### Auth + delete target
+- Requires login and `$_GET['id']`.
+
+### Ownership enforcement
+```php
+SELECT file_name FROM uploads WHERE id = ? AND user_id = ?
+```
+- Prevents deleting files not owned by the current user.
+
+### Deletion steps
+1. `DELETE FROM uploads WHERE id = ? AND user_id = ?`
+2. If physical file exists: `unlink($filePath)`
+
+### Redirect
+- Returns to `files.php`.
+
+### Interactions
+- Depends on `uploads` table.
+- Deletes from `../uploads/` directory.
+
+---
+
+## 10) `public/edit_file.php`
+
+### Auth + fetch upload
+```php
+SELECT * FROM uploads WHERE id = ? AND user_id = ?
+```
+- Fetches only the user’s own file.
+
+### Render edit form
+- Form posts to `process_edit_file.php`.
+
+### Interactions
+- Link targets `files.php` via cancel.
+- Submit to `process_edit_file.php`.
+
+---
+
+## 11) `public/process_edit_file.php`
+
+### Auth
+- Requires login.
+
+### Ownership verification
+```php
+SELECT id FROM uploads WHERE id = ? AND user_id = ?
+```
+
+### Update block
+```php
+UPDATE uploads SET title = ?, description = ?, visibility = ?
+WHERE id = ? AND user_id = ?
+```
+
+### Post-update redirect
+- Sets `$_SESSION['upload_success']` or `$_SESSION['upload_error']`.
+- Redirects to `files.php`.
+
+### Interactions
+- Updates DB table `uploads`.
+
+---
+
+## 12) `public/upload_handler.php`
+
+### Auth
+- Requires login and loads `$conn`.
+
+### Input extraction
+- Reads title, description, visibility from `$_POST`.
+- Reads uploaded file from `$_FILES['file']`.
+
+### Validation block
+- Rejects if `$fileError !== 0`.
+- Allows extensions: `pdf, docx, jpg, png, txt`.
+- Rejects files over 5MB.
+
+### Save block
+- Creates unique name:
+  - `uniqid("file_", true) . "." . $fileExt`
+- Moves uploaded temporary file to `../uploads/$newFileName`.
+
+### DB insert block
+```php
+INSERT INTO uploads
+(user_id, title, description, file_name, file_type, file_size, visibility, institution_id)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+```
+- Binds params and executes.
+
+### Redirect + session messages
+- Sets session `upload_success` or `upload_error`.
+- Redirects to `dashboard.php`.
+
+### Interactions
+- Called by `public/dashboard.php` upload modal form.
+- Creates physical file in `../uploads/`.
+- Inserts into DB table `uploads`.
+
+---
+
+## 13) `public/library.php`
+
+### Auth + theme
+- Requires login.
+- Sets `$activePage = 'library'` for sidebar.
+
+### Filters
+- Reads `search`, `type`, `sort` from `$_GET`.
+
+### Main query
+```sql
+SELECT uploads.*, users.name AS uploader_name, saved.upload_id AS saved_upload_id
+FROM uploads
+JOIN users ON uploads.user_id = users.id
+LEFT JOIN saved ON uploads.id = saved.upload_id AND saved.user_id = ?
+WHERE (uploads.visibility = 'public'
+       OR (uploads.visibility = 'institution' AND uploads.institution_id = ?))
+  AND (uploads.title LIKE ? OR uploads.description LIKE ?)
+```
+- Shows only public + institution-matching uploads.
+- Uses LEFT JOIN `saved` so UI can display save state.
+
+### Sort
+- `ORDER BY uploads.created_at DESC` (latest) or ASC (oldest).
+
+### Render save/un-save buttons
+- Uses HTML button with class `save-btn`.
+- JS calls `fetch('toggle_save.php', { method:'POST', body:'upload_id=...' })`.
+
+### Interactions
+- Includes `../includes/sidebar.php`.
+- Uses `toggle_save.php` for favorites.
+- Provides routes to:
+  - `view_file.php`, `download.php`
+
+---
+
+## 14) `public/toggle_save.php`
+
+### Auth + parse upload id
+- Requires session.
+- Reads `$_POST['upload_id']`.
+
+### Determine if already saved
+```php
+SELECT id FROM saved WHERE user_id = ? AND upload_id = ?
+```
+- If exists: deletes row.
+- Else: inserts row.
+
+### Output
+- Echoes literal strings:
+  - `
