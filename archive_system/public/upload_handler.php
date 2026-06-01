@@ -10,6 +10,10 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $institution_id = $_SESSION['institution_id'] ?? null;
 
+if (empty($institution_id)) {
+    $institution_id = null;
+}
+
 $title = trim($_POST['title']);
 $description = trim($_POST['description']);
 $visibility = $_POST['visibility'] ?? 'private';

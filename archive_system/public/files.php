@@ -82,7 +82,7 @@ $result = $stmt->get_result();
             <!-- CONTENT -->
             <?php if ($result->num_rows === 0): ?>
 
-                <div class="alert alert-info">No files found.</div>
+                <div class="alert alert-info">Nothing to see here...</div>
 
             <?php else: ?>
 

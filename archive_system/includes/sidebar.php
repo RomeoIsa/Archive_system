@@ -18,7 +18,7 @@ $sidebarClass = ($role === 'staff') ? 'sidebar-staff' : 'sidebar-student';
 
     <ul class="nav flex-column mt-4 flex-grow-1">
 
-        <!-- BASE MENU (EVERYONE) -->
+       
         <li>
             <a href="dashboard.php" class="nav-link text-light <?php echo ($activePage == 'dashboard') ? 'active' : ''; ?>">
                 Dashboard
@@ -37,7 +37,7 @@ $sidebarClass = ($role === 'staff') ? 'sidebar-staff' : 'sidebar-student';
             </a>
         </li>
 
-        <!-- STAFF ONLY MENU -->
+       
         <?php if ($role === 'staff'): ?>
 
             <li>
@@ -54,7 +54,7 @@ $sidebarClass = ($role === 'staff') ? 'sidebar-staff' : 'sidebar-student';
 
         <?php endif; ?>
 
-        <!-- STATIC ITEMS (UNCHANGED) -->
+        
         <li>
             <a href="saved.php" class="nav-link text-light <?php echo ($activePage == 'saved') ? 'active' : ''; ?>">
                 Favorites

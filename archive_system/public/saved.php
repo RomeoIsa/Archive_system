@@ -158,9 +158,9 @@ $result = $stmt->get_result();
 
             <div class="empty-state">
 
-                <div class="empty-state-icon">⭐</div>
+                <div class="empty-state-icon"><i class="bi bi-rocket-takeoff-fill"></i></div>
 
-                <h5>No Saved Files</h5>
+                <h5>Nothing to see here...</h5>
 
                 <p>Start saving files to see them here.</p>
 

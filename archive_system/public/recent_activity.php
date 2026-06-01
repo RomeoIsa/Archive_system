@@ -25,16 +25,16 @@ $activePage = 'recent';
 function getFileIcon($type)
 {
     return match (strtolower($type)) {
-        'pdf' => '📕',
-        'doc', 'docx' => '📘',
-        'ppt', 'pptx' => '📊',
-        'xls', 'xlsx' => '📗',
-        'jpg', 'jpeg', 'png', 'webp' => '🖼️',
-        'zip', 'rar', '7z' => '🗜️',
-        'mp4' => '🎬',
-        'mp3', 'wav' => '🎵',
-        'txt' => '📄',
-        default => '📁'
+        'pdf' => '<i class="bi bi-file-earmark-pdf"></i>',
+        'doc', 'docx' => '<i class="bi bi-files"></i>',
+        'ppt', 'pptx' => '<i class="bi bi-file-earmark-ppt-fill"></i>',
+        'xls', 'xlsx' => '<i class="bi bi-filetype-xls"></i>',
+        'jpg', 'jpeg', 'png', 'webp' => '<i class="bi bi-file-earmark-image"></i>',
+        'zip', 'rar', '7z' => '<i class="bi bi-file-earmark-zip"></i>',
+        'mp4' => '<i class="bi bi-filetype-mp4"></i>',
+        'mp3', 'wav' => '<i class="bi bi-filetype-mp3"></i>',
+        'txt' => '<i class="bi bi-filetype-txt"></i>',
+        default => '<i class="bi bi-archive"></i>'
     };
 }
 
