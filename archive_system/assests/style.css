@@ -156,15 +156,17 @@
 .file-card {
     border: none;
     border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transition: all 0.2s ease;
+    /* box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s ease; */
     overflow: hidden;
 }
 
-.file-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(0,0,0,0.08);
-}
+
+/* .file-card:hover {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+} */
+
 
 .file-card small {
     line-height: 1.4;

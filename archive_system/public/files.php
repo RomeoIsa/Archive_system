@@ -71,13 +71,32 @@ $result = $stmt->get_result();
 
             <!-- SEARCH -->
             <form method="GET" class="mb-4">
-                <input
-                    type="text"
-                    name="search"
-                    class="form-control search-bar"
-                    placeholder="Search files by title..."
-                    value="<?= htmlspecialchars($search) ?>">
+                <div class="position-relative">
+                    <input
+                        type="text"
+                        name="search"
+                        id="files_search"
+                        class="form-control search-bar pe-5"
+                        placeholder="Search files by title..."
+                        value="<?= htmlspecialchars($search) ?>">
+
+                    <?php if (!empty($search)): ?>
+                        <button type="button" class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2" onclick="clearFilesSearch()" aria-label="Clear search">
+                            X
+                        </button>
+                    <?php else: ?>
+                        <button type="button" class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2" style="display:none;" id="files_search_clear" onclick="clearFilesSearch()" aria-label="Clear search">
+                            X
+                        </button>
+                    <?php endif; ?>
+                </div>
             </form>
+
+            <script>
+                function clearFilesSearch() {
+                    window.location.href = 'files.php';
+                }
+            </script>
 
             <!-- CONTENT -->
             <?php if ($result->num_rows === 0): ?>
@@ -115,7 +134,7 @@ $result = $stmt->get_result();
 
                                         <!-- VISIBILITY -->
                                         <?php if ($row['visibility'] == 'public'): ?>
-                                            <span class="badge rounded-pill bg-success d-flex align-items-center gap-1">
+                                            <span class="badge rounded-pill bg-success d-flex align-items-center gap-0">
                                                 <i class="bi bi-globe-fill"></i>
                                                 Public
                                             </span>

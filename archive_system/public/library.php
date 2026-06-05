@@ -185,14 +185,27 @@ $result = $stmt->get_result();
                 <div class="row g-2 align-items-center">
 
                     <!-- SEARCH -->
-                    <div class="col-md-5">  
+                <div class="col-md-5">  
 
-                        <input
-                            type="text"
-                            name="search"
-                            class="form-control search-box"
-                            placeholder="Search by title or description..."
-                            value="<?= htmlspecialchars($search) ?>">
+                        <div class="position-relative">
+                            <input
+                                type="text"
+                                name="search"
+                                id="library_search"
+                                class="form-control search-box pe-5"
+                                placeholder="Search by title or description..."
+                                value="<?= htmlspecialchars($search) ?>">
+
+                            <?php if (!empty($search)): ?>
+                                <button type="button" class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2" onclick="clearLibrarySearch()" aria-label="Clear search">
+                                    X
+                                </button>
+                            <?php else: ?>
+                                <button type="button" class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2" style="display:none;" id="library_search_clear" onclick="clearLibrarySearch()" aria-label="Clear search">
+                                    X
+                                </button>
+                            <?php endif; ?>
+                        </div>
 
                     </div>
 
@@ -271,6 +284,12 @@ $result = $stmt->get_result();
                 </div>
 
             </form>
+
+            <script>
+                function clearLibrarySearch() {
+                    window.location.href = 'library.php';
+                }
+            </script>
 
             <!-- RESULTS -->
             <?php if ($result->num_rows === 0): ?>

@@ -113,12 +113,25 @@ $result = $stmt->get_result();
             <div class="row g-2 align-items-center">
 
                 <div class="col-md-5">
-                    <input
-                        type="text"
-                        name="search"
-                        class="form-control search-box"
-                        placeholder="Search saved files..."
-                        value="<?= htmlspecialchars($search) ?>">
+                    <div class="position-relative">
+                        <input
+                            type="text"
+                            name="search"
+                            id="saved_search"
+                            class="form-control search-box pe-5"
+                            placeholder="Search saved files..."
+                            value="<?= htmlspecialchars($search) ?>">
+
+                        <?php if (!empty($search)): ?>
+                            <button type="button" class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2" onclick="clearSavedSearch()" aria-label="Clear search">
+                                X
+                            </button>
+                        <?php else: ?>
+                            <button type="button" class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2" style="display:none;" id="saved_search_clear" onclick="clearSavedSearch()" aria-label="Clear search">
+                                X
+                            </button>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <div class="col-md-2">
@@ -152,6 +165,12 @@ $result = $stmt->get_result();
             </div>
 
         </form>
+
+        <script>
+            function clearSavedSearch() {
+                window.location.href = 'saved.php';
+            }
+        </script>
 
         <!-- RESULTS -->
         <?php if ($result->num_rows === 0): ?>

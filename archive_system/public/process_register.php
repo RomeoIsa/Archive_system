@@ -48,7 +48,10 @@ $check->execute();
 $result = $check->get_result();
 
 if ($result->num_rows > 0) {
-    die("Email already exists");
+    $_SESSION['register_error'] = "User already exists, please login.";
+    $_SESSION['old_email'] = $email;
+    header("Location: register.php");
+    exit();
 }
 
 /*
@@ -69,8 +72,10 @@ $stmt->execute();
 session_regenerate_id(true);
 
 $_SESSION['user_id'] = $stmt->insert_id;
+$_SESSION['name'] = $name;
+$_SESSION['role'] = $role;
 $_SESSION['institution_id'] = $institution;
-
+$_SESSION['level'] = $level;
 /*
     REDIRECT
 */
