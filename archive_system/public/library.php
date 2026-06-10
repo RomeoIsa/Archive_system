@@ -18,6 +18,17 @@ $themeClass = ($role === 'staff')
 
 $activePage = 'library';
 
+// Profile image (match dashboard fallback)
+$stmt = $conn->prepare("SELECT profile_image FROM users WHERE id = ? LIMIT 1");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$res = $stmt->get_result();
+$userData = $res->fetch_assoc();
+
+$profile_image = !empty($userData['profile_image'])
+    ? '../uploads/profiles/' . $userData['profile_image']
+    : '../assests/images/default-avatar.png';
+
 /*
 |--------------------------------------------------------------------------
 | FILE ICON HELPER
@@ -168,13 +179,16 @@ $result = $stmt->get_result();
                     <strong>
                         <?= htmlspecialchars($name) ?>
                     </strong>
-
-                    <img
-                        src="https://via.placeholder.com/40"
+                 <a href="settings.php" title="Profile Settings">
+                      <img
+                        src="<?= $profile_image ?>"
                         class="rounded-circle dashboard-avatar"
                         width="40"
-                        height="40">
+                        height="40"
+                        alt="Profile">
 
+                 </a>
+                  
                 </div>
 
             </div>
@@ -185,7 +199,7 @@ $result = $stmt->get_result();
                 <div class="row g-2 align-items-center">
 
                     <!-- SEARCH -->
-                <div class="col-md-5">  
+                    <div class="col-md-5">
 
                         <div class="position-relative">
                             <input
@@ -301,7 +315,7 @@ $result = $stmt->get_result();
                     </div>
 
                     <h5>
-                       Nothing to see here...
+                        Nothing to see here...
                     </h5>
 
                     <p>

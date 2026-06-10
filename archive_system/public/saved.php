@@ -17,6 +17,17 @@ $themeClass = ($role === 'staff')
 
 $activePage = 'saved';
 
+// Profile image (match dashboard fallback)
+$stmt = $conn->prepare("SELECT profile_image FROM users WHERE id = ? LIMIT 1");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$res = $stmt->get_result();
+$userData = $res->fetch_assoc();
+
+$profile_image = !empty($userData['profile_image'])
+    ? '../uploads/profiles/' . $userData['profile_image']
+    : '../assests/images/default-avatar.png';
+
 /*
 |--------------------------------------------------------------------------
 | FILTERS
@@ -80,244 +91,245 @@ $result = $stmt->get_result();
 
 <body class="<?= $themeClass; ?>">
 
-<div class="d-flex">
+    <div class="d-flex">
 
-    <?php include "../includes/sidebar.php"; ?>
+        <?php include "../includes/sidebar.php"; ?>
 
-    <div class="main-content flex-grow-1 p-4">
+        <div class="main-content flex-grow-1 p-4">
 
-        <!-- HEADER -->
-        <div class="d-flex justify-content-between align-items-center page-header">
+            <!-- HEADER -->
+            <div class="d-flex justify-content-between align-items-center page-header">
 
-            <div>
-                <h4 class="mb-1">
-                    <i class="bi bi-bookmarks-fill"></i>
-                    Saved Items
-                </h4>
+                <div>
+                    <h4 class="mb-1">
+                        <i class="bi bi-bookmarks-fill"></i>
+                        Saved Items
+                    </h4>
 
-                <small class="text-muted">
-                    Your bookmarked materials
-                </small>
+                    <small class="text-muted">
+                        Your bookmarked materials
+                    </small>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <strong><?= htmlspecialchars($name) ?></strong>
+                    <a href="settings.php" title="Profile Settings">
+                        <img src="<?= $profile_image ?>" class="rounded-circle dashboard-avatar" width="40" height="40" alt="Profile">
+                    </a>
+                </div>
+
             </div>
 
-            <div class="d-flex align-items-center gap-3">
-                <strong><?= htmlspecialchars($name) ?></strong>
-                <img src="https://via.placeholder.com/40" class="rounded-circle dashboard-avatar">
-            </div>
+            <!-- SEARCH + FILTER -->
+            <form method="GET" class="mb-4">
 
-        </div>
+                <div class="row g-2 align-items-center">
 
-        <!-- SEARCH + FILTER -->
-        <form method="GET" class="mb-4">
+                    <div class="col-md-5">
+                        <div class="position-relative">
+                            <input
+                                type="text"
+                                name="search"
+                                id="saved_search"
+                                class="form-control search-box pe-5"
+                                placeholder="Search saved files..."
+                                value="<?= htmlspecialchars($search) ?>">
 
-            <div class="row g-2 align-items-center">
-
-                <div class="col-md-5">
-                    <div class="position-relative">
-                        <input
-                            type="text"
-                            name="search"
-                            id="saved_search"
-                            class="form-control search-box pe-5"
-                            placeholder="Search saved files..."
-                            value="<?= htmlspecialchars($search) ?>">
-
-                        <?php if (!empty($search)): ?>
-                            <button type="button" class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2" onclick="clearSavedSearch()" aria-label="Clear search">
-                                X
-                            </button>
-                        <?php else: ?>
-                            <button type="button" class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2" style="display:none;" id="saved_search_clear" onclick="clearSavedSearch()" aria-label="Clear search">
-                                X
-                            </button>
-                        <?php endif; ?>
+                            <?php if (!empty($search)): ?>
+                                <button type="button" class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2" onclick="clearSavedSearch()" aria-label="Clear search">
+                                    X
+                                </button>
+                            <?php else: ?>
+                                <button type="button" class="btn btn-sm btn-light position-absolute top-50 end-0 translate-middle-y me-2" style="display:none;" id="saved_search_clear" onclick="clearSavedSearch()" aria-label="Clear search">
+                                    X
+                                </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
+
+                    <div class="col-md-2">
+                        <select name="type" class="form-select filter-select">
+
+                            <option value="">All Types</option>
+                            <option value="pdf" <?= $type == 'pdf' ? 'selected' : '' ?>>PDF</option>
+                            <option value="docx" <?= $type == 'docx' ? 'selected' : '' ?>>DOCX</option>
+                            <option value="jpg" <?= $type == 'jpg' ? 'selected' : '' ?>>JPG</option>
+                            <option value="png" <?= $type == 'png' ? 'selected' : '' ?>>PNG</option>
+                            <option value="txt" <?= $type == 'txt' ? 'selected' : '' ?>>TXT</option>
+
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select name="sort" class="form-select filter-select">
+
+                            <option value="latest" <?= $sort == 'latest' ? 'selected' : '' ?>>Latest</option>
+                            <option value="oldest" <?= $sort == 'oldest' ? 'selected' : '' ?>>Oldest</option>
+
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+
                 </div>
 
-                <div class="col-md-2">
-                    <select name="type" class="form-select filter-select">
+            </form>
 
-                        <option value="">All Types</option>
-                        <option value="pdf" <?= $type == 'pdf' ? 'selected' : '' ?>>PDF</option>
-                        <option value="docx" <?= $type == 'docx' ? 'selected' : '' ?>>DOCX</option>
-                        <option value="jpg" <?= $type == 'jpg' ? 'selected' : '' ?>>JPG</option>
-                        <option value="png" <?= $type == 'png' ? 'selected' : '' ?>>PNG</option>
-                        <option value="txt" <?= $type == 'txt' ? 'selected' : '' ?>>TXT</option>
+            <script>
+                function clearSavedSearch() {
+                    window.location.href = 'saved.php';
+                }
+            </script>
 
-                    </select>
+            <!-- RESULTS -->
+            <?php if ($result->num_rows === 0): ?>
+
+                <div class="empty-state">
+
+                    <div class="empty-state-icon"><i class="bi bi-rocket-takeoff-fill"></i></div>
+
+                    <h5>Nothing to see here...</h5>
+
+                    <p>Start saving files to see them here.</p>
+
                 </div>
 
-                <div class="col-md-2">
-                    <select name="sort" class="form-select filter-select">
+            <?php else: ?>
 
-                        <option value="latest" <?= $sort == 'latest' ? 'selected' : '' ?>>Latest</option>
-                        <option value="oldest" <?= $sort == 'oldest' ? 'selected' : '' ?>>Oldest</option>
+                <div class="row">
 
-                    </select>
-                </div>
+                    <?php while ($row = $result->fetch_assoc()): ?>
 
-                <div class="col-md-2">
-                    <button class="btn btn-primary w-100">
-                        <i class="bi bi-search"></i> Search
-                    </button>
-                </div>
+                        <div class="col-md-4 mb-4">
 
-            </div>
+                            <div class="card file-card h-100 p-3">
 
-        </form>
+                                <!-- TOP -->
+                                <div class="d-flex justify-content-between align-items-center mb-2">
 
-        <script>
-            function clearSavedSearch() {
-                window.location.href = 'saved.php';
-            }
-        </script>
+                                    <div class="file-title">
+                                        <?= htmlspecialchars($row['title']) ?>
+                                    </div>
 
-        <!-- RESULTS -->
-        <?php if ($result->num_rows === 0): ?>
+                                    <i class="bi bi-star-fill text-warning"></i>
 
-            <div class="empty-state">
-
-                <div class="empty-state-icon"><i class="bi bi-rocket-takeoff-fill"></i></div>
-
-                <h5>Nothing to see here...</h5>
-
-                <p>Start saving files to see them here.</p>
-
-            </div>
-
-        <?php else: ?>
-
-            <div class="row">
-
-                <?php while ($row = $result->fetch_assoc()): ?>
-
-                    <div class="col-md-4 mb-4">
-
-                        <div class="card file-card h-100 p-3">
-
-                            <!-- TOP -->
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-
-                                <div class="file-title">
-                                    <?= htmlspecialchars($row['title']) ?>
                                 </div>
 
-                                <i class="bi bi-star-fill text-warning"></i>
+                                <!-- DESCRIPTION -->
+                                <p class="file-description mb-3">
 
-                            </div>
+                                    <?= htmlspecialchars(substr($row['description'], 0, 100)) ?>
+                                    <?= strlen($row['description']) > 100 ? '...' : '' ?>
 
-                            <!-- DESCRIPTION -->
-                            <p class="file-description mb-3">
+                                </p>
 
-                                <?= htmlspecialchars(substr($row['description'], 0, 100)) ?>
-                                <?= strlen($row['description']) > 100 ? '...' : '' ?>
+                                <!-- META -->
+                                <div class="meta-text mb-2">
+                                    <i class="bi bi-person"></i>
+                                    <?= htmlspecialchars($row['uploader_name']) ?>
+                                </div>
 
-                            </p>
+                                <!-- FILE INFO -->
+                                <div class="d-flex justify-content-between align-items-center mb-3">
 
-                            <!-- META -->
-                            <div class="meta-text mb-2">
-                                <i class="bi bi-person"></i>
-                                <?= htmlspecialchars($row['uploader_name']) ?>
-                            </div>
+                                    <span class="badge bg-light text-dark border">
+                                        <?= strtoupper($row['file_type']) ?>
+                                    </span>
 
-                            <!-- FILE INFO -->
-                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <small class="text-muted">
+                                        <?= round($row['file_size'] / 1024, 2) ?> KB
+                                    </small>
 
-                                <span class="badge bg-light text-dark border">
-                                    <?= strtoupper($row['file_type']) ?>
-                                </span>
+                                </div>
 
-                                <small class="text-muted">
-                                    <?= round($row['file_size'] / 1024, 2) ?> KB
-                                </small>
+                                <!-- VISIBILITY -->
+                                <div class="mb-3">
 
-                            </div>
+                                    <?php if ($row['visibility'] === 'public'): ?>
+                                        <span class="badge bg-success">Public</span>
 
-                            <!-- VISIBILITY -->
-                            <div class="mb-3">
+                                    <?php elseif ($row['visibility'] === 'institution'): ?>
+                                        <span class="badge bg-primary">Institution</span>
 
-                                <?php if ($row['visibility'] === 'public'): ?>
-                                    <span class="badge bg-success">Public</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">Private</span>
+                                    <?php endif; ?>
 
-                                <?php elseif ($row['visibility'] === 'institution'): ?>
-                                    <span class="badge bg-primary">Institution</span>
+                                </div>
 
-                                <?php else: ?>
-                                    <span class="badge bg-secondary">Private</span>
-                                <?php endif; ?>
+                                <!-- ACTIONS -->
+                                <div class="mt-auto d-flex gap-2">
 
-                            </div>
+                                    <a href="view_file.php?id=<?= $row['id'] ?>"
+                                        class="btn btn-outline-primary btn-sm action-btn">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
 
-                            <!-- ACTIONS -->
-                            <div class="mt-auto d-flex gap-2">
+                                    <a href="download.php?id=<?= $row['id'] ?>"
+                                        class="btn btn-success btn-sm action-btn">
+                                        <i class="bi bi-download"></i>
+                                    </a>
 
-                                <a href="view_file.php?id=<?= $row['id'] ?>"
-                                   class="btn btn-outline-primary btn-sm action-btn">
-                                    <i class="bi bi-eye"></i>
-                                </a>
+                                    <button
+                                        class="btn btn-warning btn-sm action-btn save-btn"
+                                        data-id="<?= $row['id']; ?>">
 
-                                <a href="download.php?id=<?= $row['id'] ?>"
-                                   class="btn btn-success btn-sm action-btn">
-                                    <i class="bi bi-download"></i>
-                                </a>
+                                        <i class="bi bi-star-fill"></i>
 
-                                <button
-                                    class="btn btn-warning btn-sm action-btn save-btn"
-                                    data-id="<?= $row['id']; ?>">
+                                    </button>
 
-                                    <i class="bi bi-star-fill"></i>
-
-                                </button>
+                                </div>
 
                             </div>
 
                         </div>
 
-                    </div>
+                    <?php endwhile; ?>
 
-                <?php endwhile; ?>
+                </div>
 
-            </div>
+            <?php endif; ?>
 
-        <?php endif; ?>
+        </div>
 
     </div>
 
-</div>
+    <script>
+        document.querySelectorAll('.save-btn').forEach(button => {
 
-<script>
+            button.addEventListener('click', function() {
 
-document.querySelectorAll('.save-btn').forEach(button => {
+                let card = this.closest('.col-md-4');
+                let uploadId = this.dataset.id;
 
-    button.addEventListener('click', function () {
+                fetch('toggle_save.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: 'upload_id=' + uploadId
+                    })
+                    .then(() => {
 
-        let card = this.closest('.col-md-4');
-        let uploadId = this.dataset.id;
+                        card.style.transition = '0.25s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.95)';
 
-        fetch('toggle_save.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: 'upload_id=' + uploadId
-        })
-        .then(() => {
+                        setTimeout(() => {
+                            card.remove();
+                        }, 250);
 
-            card.style.transition = '0.25s ease';
-            card.style.opacity = '0';
-            card.style.transform = 'scale(0.95)';
+                    });
 
-            setTimeout(() => {
-                card.remove();
-            }, 250);
+            });
 
         });
-
-    });
-
-});
-
-</script>
+    </script>
 
 </body>
+
 </html>

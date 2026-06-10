@@ -16,9 +16,7 @@ $themeClass = ($role === 'staff') ? 'theme-staff' : 'theme-student';
 
 $activePage = 'dashboard';
 
-/* =======================
-   GET USER PROFILE IMAGE
-======================= */
+
 $stmt = $conn->prepare("SELECT profile_image FROM users WHERE id = ? LIMIT 1");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -29,9 +27,7 @@ $profile_image = !empty($userData['profile_image'])
     ? '../uploads/profiles/' . $userData['profile_image']
     : '../assests/images/default-avatar.png';
 
-/* -----------------------
-   STUDENT STATS
-------------------------*/
+
 if ($role === 'student') {
 
     $uploads = $conn->query("
@@ -67,9 +63,7 @@ if ($role === 'student') {
     ];
 }
 
-/* -----------------------
-   STAFF STATS
-------------------------*/
+ 
 if ($role === 'staff') {
 
     $uploads = $conn->query("
@@ -178,7 +172,7 @@ $recentUploads = $recentUploadsStmt->get_result();
             <div class="d-flex justify-content-between align-items-center">
 
                 <div>
-                    <h4>Welcome back, <?= htmlspecialchars($name); ?> 👋</h4>
+                    <h4>Welcome back, <?= htmlspecialchars($name); ?> </h4>
                     <p class="text-muted">Find, learn and share academic resources.</p>
                 </div>
 
