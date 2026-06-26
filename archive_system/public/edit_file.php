@@ -42,7 +42,7 @@ $file = $result->fetch_assoc();
 
     <div class="card p-4 shadow-sm">
 
-        <h4 class="mb-3">✏️ Edit File</h4>
+        <h4 class="mb-3"> Edit File</h4>
 
         <form method="POST" action="process_edit_file.php">
 

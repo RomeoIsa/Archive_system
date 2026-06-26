@@ -41,7 +41,7 @@ if (!password_verify($password, $user['password'])) {
 }
 
 /*
-    🔐 SESSION SECURITY 
+    SESSION SECURITY 
 */
 session_regenerate_id(true);
 
@@ -53,9 +53,7 @@ $_SESSION['name'] = $user['name'];
 $_SESSION['institution_id'] = $user['institution_id'];
 $_SESSION['role'] = $user['role']; // 🔥 IMPORTANT
 
-/*
-    CLEANUP
-*/
+
 unset($_SESSION['error']);
 unset($_SESSION['old_email']);
 
